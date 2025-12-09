@@ -26,5 +26,6 @@ namespace ArteEva.Repositories
         void RemoveRange(IEnumerable<T> entities);
         Task<IEnumerable<T>> GetPagedAsync(int pageNumber, int pageSize);
         Task<IEnumerable<T>> GetPagedAsync(Expression<Func<T, bool>> predicate, int pageNumber, int pageSize);
+        Task SaveChanges();
     }
 }
