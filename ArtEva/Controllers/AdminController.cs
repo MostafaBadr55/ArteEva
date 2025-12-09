@@ -14,6 +14,8 @@ namespace ArtEva.Controllers
         private readonly IShopService _shopService;
         private readonly IAdminService _adminService;
 
+
+
         public AdminController(IShopService shopService, IAdminService adminService)
         {
             _shopService = shopService;
