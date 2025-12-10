@@ -88,8 +88,6 @@ namespace ArteEva.Repositories
             var res = await GetByIDWithTracking(id);
             if(res!= null)
             res.IsDeleted = true;
-
-            await _context.SaveChangesAsync();
         }
 
         public void RemoveRange(IEnumerable<T> entities)
@@ -114,5 +112,9 @@ namespace ArteEva.Repositories
                 .ToListAsync();
         }
 
+        public async Task SaveChanges()
+        {
+            await _context.SaveChangesAsync();
+        }
     }
 }

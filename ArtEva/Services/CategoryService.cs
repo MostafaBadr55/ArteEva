@@ -9,12 +9,11 @@ namespace ArtEva.Services
     public class CategoryService : ICategoryService
     {
         private readonly ICategoryRepository _categoryRepository;
-        private readonly ApplicationDbContext _context;
 
         public CategoryService(ICategoryRepository categoryRepository , ApplicationDbContext context ) 
         {
             _categoryRepository = categoryRepository;
-            _context = context;
+         
         }
 
         public async Task<CategoryDto> CreateCategoryAsync(CreateCategoryRequestDto request)
@@ -34,7 +33,7 @@ namespace ArtEva.Services
 
             };
             await _categoryRepository.AddAsync(category);
-            await _context.SaveChangesAsync();
+            await _categoryRepository.SaveChanges();
 
             return new CategoryDto
             {
@@ -53,7 +52,7 @@ namespace ArtEva.Services
 
             }
             await _categoryRepository.Delete(id);
-            await _context.SaveChangesAsync();
+            await _categoryRepository.SaveChanges();
         }
 
         public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
@@ -97,7 +96,7 @@ namespace ArtEva.Services
             existingCategory.ImageUrl = request.ImageUrl;
             existingCategory.UpdatedAt = DateTime.UtcNow;   
             _categoryRepository.Update(existingCategory); 
-            await _context.SaveChangesAsync();
+            await _categoryRepository.SaveChanges();
             return new CategoryDto
             {
                 Name = existingCategory.Name,
