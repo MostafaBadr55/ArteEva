@@ -19,6 +19,7 @@ namespace ArteEva.Models
         [MaxLength(80)]
         public string SKU { get; set; }
 
+
         public decimal Price { get; set; }
 
         public bool IsPublished { get; set; } = false;
@@ -27,6 +28,7 @@ namespace ArteEva.Models
         public byte[]? RowVersion { get; set; }
 
         // Navigation Properties
+        #region nav
         public Shop Shop { get; set; }
         public Category Category { get; set; }
         public SubCategory SubCategory { get; set; }
@@ -35,5 +37,7 @@ namespace ArteEva.Models
         public ICollection<OrderItem> OrderItems { get; set; }
         public ICollection<Review> Reviews { get; set; }
         public ICollection<Favorite> Favorites { get; set; }
+
+        #endregion
     }
 }

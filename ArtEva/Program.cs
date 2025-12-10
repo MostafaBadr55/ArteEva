@@ -2,6 +2,7 @@ using ArteEva.Data;
 using ArteEva.Models;
 using ArteEva.Repositories;
 using ArteEva.Services;
+using ArtEva.Controllers.Filters.Middlewares;
 using ArtEva.Data.Data_Seeder;
 using ArtEva.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -111,7 +112,6 @@ namespace ArtEva
 
             // Register repositories
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            //builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IShopRepository, ShopRepository>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             builder.Services.AddScoped<ISubCategoryRepository, SubCategoryRepository>();
@@ -214,6 +214,8 @@ namespace ArtEva
             }
 
             app.UseCors("AllowAngular");
+            app.UseMiddleware<GlobalExceptionMiddleware>();
+
             app.UseAuthentication();
             app.UseAuthorization();
 

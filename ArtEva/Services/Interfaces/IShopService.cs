@@ -11,5 +11,6 @@ namespace ArtEva.Services
         Task<IEnumerable<ShopDto>> GetPendingShopsAsync();
         Task<ShopDto> ApproveShopAsync(int shopId);
         Task<ShopDto> RejectShopAsync(int shopId, RejectShopDto dto);
+        Task<bool> ShopExistAsync(int shopId);
     }
 }
