@@ -49,14 +49,26 @@ namespace ArtEva.Services
         public async Task<ShopDto> GetShopByOwnerIdAsync(int userId)
         {
             var shop = await _context.Shops
-                .FirstOrDefaultAsync(s => s.OwnerUserId == userId);
+                .Where(s => s.OwnerUserId == userId).Select(s => new ShopDto()
+                {
+
+                    OwnerUserName = s.Owner.UserName,
+                    Name = s.Name,  
+                    ImageUrl = s.ImageUrl,  
+                    Description = s.Description,    
+                    Status = s.Status,  
+                    RatingAverage = s.RatingAverage 
+
+
+
+                }).FirstOrDefaultAsync();
 
             if (shop == null)
             {
                 return null;
             }
 
-            return MapToDto(shop);
+            return shop;
         }
 
         public async Task<ShopDto> GetShopByIdAsync(int shopId)

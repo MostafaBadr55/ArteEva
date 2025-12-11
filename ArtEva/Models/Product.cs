@@ -7,9 +7,7 @@ namespace ArteEva.Models
 
     public class Product : BaseModel
     {
-        public int ShopId { get; set; }
-        public int CategoryId { get; set; }
-        public int SubCategoryId { get; set; }
+      
 
         [Required]
         [MaxLength(160)]
@@ -26,6 +24,9 @@ namespace ArteEva.Models
         [Timestamp]
         public byte[]? RowVersion { get; set; }
 
+        public int ShopId { get; set; }
+        public int CategoryId { get; set; }
+        public int SubCategoryId { get; set; }
         // Navigation Properties
         public Shop Shop { get; set; }
         public Category Category { get; set; }
