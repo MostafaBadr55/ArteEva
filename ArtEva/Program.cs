@@ -221,7 +221,7 @@ namespace ArtEva
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseStaticFiles();   
+            app.UseStaticFiles();
             // Map attribute-routed controllers
             app.MapControllers();
 
