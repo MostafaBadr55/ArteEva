@@ -136,7 +136,7 @@ namespace ArtEva.Services
                 return true;
         }
         #region mapping
-        private ShopDto MapToDto(ArteEva.Models.Shop shop)
+        private ShopDto MapToDto(Shop shop)
         {
             return new ShopDto
             {

@@ -1,12 +1,15 @@
 ﻿using ArteEva.Data;
 using ArteEva.Models;
 using ArteEva.Repositories;
+using ArtEva.DTOs.Pagination;
+using ArtEva.DTOs.Pagination.Product;
 using ArtEva.DTOs.Product;
 using ArtEva.DTOs.ProductImage;
 using ArtEva.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace ArtEva.Services
 {
@@ -113,18 +116,65 @@ namespace ArtEva.Services
                     .ToList()
             };
         }
-        #region Paged products by shop
-        // READ PAGED BY SHOP
-        //public async Task<PagedProductsDto> GetProductsByShopPagedAsync(int shopId, int page, int pageSize)
-        //{
-        //    var (items, total) = await _productRepository.GetPagedProductsAsync(shopId, page, pageSize);
+        #region Paged products 
+        //READ PAGED BY SHOP
+        // Master dynamic paging method
+        public async Task<PagedResult<ProductListItemDto>> GetPagedProductsAsync(
+            Expression<Func<Product, bool>> filter,
+            int pageNumber,
+            int pageSize)
+        {
+            // defensive defaults
+            pageNumber = Math.Max(1, pageNumber);
+            pageSize = Math.Max(1, pageSize);
 
-        //    return new PagedProductsDto
-        //    {
-        //        TotalCount = total,
-        //        Items = items.Select(MapToProductDto).ToList()
-        //    };
-        //}
+            var items = await _productRepository.GetPagedProductsWithImagesAsync(filter, pageNumber, pageSize);
+            var total = await _productRepository.CountAsync(filter);
+
+            var dtoItems = items.Select(MapToListItemDto).ToList();
+
+            return new PagedResult<ProductListItemDto>
+            {
+                Items = dtoItems,
+                TotalCount = total,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
+        //Wrapper for admin: All products
+        public Task<PagedResult<ProductListItemDto>> GetAdminAllProductsPagedAsync(int page, int size)
+        {
+            return GetPagedProductsAsync(p => true, page, size);
+        }
+        // admin wrapper: pending (IsPublished == false)
+        public Task<PagedResult<ProductListItemDto>> GetAdminPendingProductsAsync(int pageNumber, int pageSize)
+        {
+            Expression<Func<Product, bool>> filter = p => p.IsPublished == false;
+            return GetPagedProductsAsync(filter, pageNumber, pageSize);
+        }
+
+        // admin wrapper: approved (IsPublished == true)
+        public Task<PagedResult<ProductListItemDto>> GetAdminApprovedProductsAsync(int pageNumber, int pageSize)
+        {
+            Expression<Func<Product, bool>> filter = p => p.IsPublished == true;
+            return GetPagedProductsAsync(filter, pageNumber, pageSize);
+        }
+
+        // shop owner: active products for this shop
+        public Task<PagedResult<ProductListItemDto>> GetShopActiveProductsAsync(int shopId, int pageNumber, int pageSize)
+        {
+            Expression<Func<Product, bool>> filter = p => p.ShopId == shopId && p.Status == ProductStatus.Active;
+            return GetPagedProductsAsync(filter, pageNumber, pageSize);
+        }
+
+        // shop owner: inactive products for this shop
+        public Task<PagedResult<ProductListItemDto>> GetShopInactiveProductsAsync(int shopId, int pageNumber, int pageSize)
+        {
+            Expression<Func<Product, bool>> filter = p => p.ShopId == shopId && p.Status == ProductStatus.InActive;
+            return GetPagedProductsAsync(filter, pageNumber, pageSize);
+        }
+
         #endregion
 
         // UPDATE PRODUCT
@@ -194,8 +244,8 @@ namespace ArtEva.Services
             if (subCategory == null)
                 throw new ValidationException("Invalid subcategory or does not belong to the selected category.");
         }
-    
 
+        #region Mapping
         private CreatedProductDto MapToProductDto(Product product)
         {
             return new CreatedProductDto
@@ -223,6 +273,31 @@ namespace ArtEva.Services
             };
         }
 
+        private ProductListItemDto MapToListItemDto(Product p)
+        {
+            return new ProductListItemDto
+            {
+                Id = p.Id,
+                ShopId = p.ShopId,
+                Title = p.Title,
+                SKU = p.SKU,
+                Price = p.Price,
+                Status = p.Status,
+                IsPublished = p.IsPublished,
+                Images = p.ProductImages?
+                    .OrderBy(i => i.SortOrder)
+                    .Select(i => new ProductImageDto
+                    {
+                        Id = i.Id,
+                        Url = i.Url,
+                        AltText = i.AltText,
+                        SortOrder = i.SortOrder,
+                        IsPrimary = i.IsPrimary
+                    }).ToList() ?? new List<ProductImageDto>()
+            };
+        }
+
+        #endregion
         private string GenerateSku(int shopId, int categoryId)
         {
             // Example: SHP5-CAT12-AX93DK
