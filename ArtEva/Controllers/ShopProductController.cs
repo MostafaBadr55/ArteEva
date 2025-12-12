@@ -29,5 +29,15 @@ namespace ArtEva.Controllers
 
             return Ok(product);
         }
+
+        [HttpPut("/Update")]
+        public async Task<IActionResult> UpdateProduct(
+        int shopId, int productId, [FromBody] UpdateProductDto dto)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+            var updated = await _productService.UpdateProductAsync(userId,dto);
+            return Ok(updated);
+        }
     }
 }
