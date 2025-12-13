@@ -4,7 +4,8 @@ using ArtEva.DTOs.Shop;
 using ArteEva.Repositories;
 using Microsoft.EntityFrameworkCore;
 using ArtEva.Models.Enums;
-using ArtEva.Services.Interfaces;
+
+using ArtEva.Services.Implementation;
 
 namespace ArtEva.Services.Implementations
 {
@@ -19,7 +20,7 @@ namespace ArtEva.Services.Implementations
             _context = context;
         }
 
-        public async Task<ShopDto> CreateShopAsync(int userId, CreateShopDto dto)
+        public async Task CreateShopAsync(int userId, CreateShopDto dto)
         {
             // Check if user already has a shop
             var existingShop = await _context.Shops
@@ -43,24 +44,37 @@ namespace ArtEva.Services.Implementations
 
             await _shopRepository.AddAsync(shop);
             await _context.SaveChangesAsync();
-
-            return MapToDto(shop);
+             
         }
 
-        public async Task<ShopDto> GetShopByOwnerIdAsync(int userId)
+        public async Task<CreatedShopDto> GetShopByOwnerIdAsync(int userId)
         {
             var shop = await _context.Shops
-                .FirstOrDefaultAsync(s => s.OwnerUserId == userId);
+             .Where(s => s.OwnerUserId == userId)
+             .Select(s => new CreatedShopDto
+             {
+                    Id = s.Id,
+                 OwnerUserName = s.Owner.UserName,
+                 Name = s.Name,
+                 ImageUrl = s.ImageUrl,
+                 Description = s.Description,
+                 Status = s.Status,
+                 RatingAverage = s.RatingAverage,
+  
+
+             }).FirstOrDefaultAsync();
+
 
             if (shop == null)
             {
                 return null;
             }
 
-            return MapToDto(shop);
+            return shop;
         }
 
-        public async Task<ShopDto> GetShopByIdAsync(int shopId)
+      
+        public async Task<ExistShopDto> GetShopByIdAsync(int shopId)
         {
             var shop = await _shopRepository.GetByIdAsync(shopId);
 
@@ -69,10 +83,10 @@ namespace ArtEva.Services.Implementations
                 throw new Exception("Shop not found");
             }
 
-            return MapToDto(shop);
+            return MapToDto2(shop);
         }
 
-        public async Task<IEnumerable<ShopDto>> GetPendingShopsAsync()
+        public async Task<IEnumerable<CreatedShopDto>> GetPendingShopsAsync()
         {
             var shops = await _context.Shops
                 .Where(s => s.Status == ShopStatus.Pending)
@@ -81,7 +95,7 @@ namespace ArtEva.Services.Implementations
             return shops.Select(MapToDto);
         }
 
-        public async Task<ShopDto> ApproveShopAsync(int shopId)
+        public async Task<CreatedShopDto> ApproveShopAsync(int shopId)
         {
             var shop = await _shopRepository.GetByIdAsync(shopId);
 
@@ -99,13 +113,13 @@ namespace ArtEva.Services.Implementations
             shop.RejectionMessage = null;
             shop.UpdatedAt = DateTime.UtcNow;
 
-            _shopRepository.Update(shop);
+           await _shopRepository.UpdateAsync(shop);
             await _context.SaveChangesAsync();
 
             return MapToDto(shop);
         }
 
-        public async Task<ShopDto> RejectShopAsync(int shopId, RejectShopDto dto)
+        public async Task<RejectedShopDto> RejectShopAsync(int shopId, RejectShopDto dto)
         {
             var shop = await _shopRepository.GetByIdAsync(shopId);
 
@@ -123,15 +137,60 @@ namespace ArtEva.Services.Implementations
             shop.RejectionMessage = dto.RejectionMessage;
             shop.UpdatedAt = DateTime.UtcNow;
 
-            _shopRepository.Update(shop);
+           await _shopRepository.UpdateAsync(shop);
             await _context.SaveChangesAsync();
 
-            return MapToDto(shop);
+            return MapToDto3(shop);
+        }
+        public async Task<bool> ShopExistAsync(int shopId)
+        {
+            var shop = _shopRepository.GetByIdAsync;
+            if (shop == null)
+                return false;
+            else
+                return true;
+        }
+ 
+        public async Task UpdateShopAsync(int UserID, UpdateShopDto updateShopDto) { 
+
+             
+            var shop = await _shopRepository.GetByIDWithTrackingAsync(updateShopDto.ShopId);
+            if (shop == null)
+            {
+                throw new NotFoundException("Shop not found");
+            }
+
+            if(UserID != shop.OwnerUserId)
+                throw new UnauthorizedAccessException("Not allowed to update this shop");
+
+            shop.Name = updateShopDto.ShopName;
+            shop.ImageUrl = updateShopDto.ImageUrl;
+            shop.Description = updateShopDto.Description;
+            shop.UpdatedAt = DateTime.UtcNow;
+              
+            await _context.SaveChangesAsync();
+             
         }
 
-        private ShopDto MapToDto(Shop shop)
+
+        #region mapping
+        private CreatedShopDto MapToDto(ArteEva.Models.Shop shop)
         {
-            return new ShopDto
+            return new CreatedShopDto
+            {
+                Id = shop.Id,
+             
+                Name = shop.Name,
+                ImageUrl = shop.ImageUrl,
+                Description = shop.Description,
+                Status = shop.Status,
+                RatingAverage = shop.RatingAverage
+            };
+        }
+
+        private ExistShopDto MapToDto2(Shop shop)
+        {
+            return new ExistShopDto
             {
                 //Id = shop.Id,
                 OwnerUserName = shop.Owner.UserName,
@@ -139,9 +198,27 @@ namespace ArtEva.Services.Implementations
                 ImageUrl = shop.ImageUrl,
                 Description = shop.Description,
                 Status = shop.Status,
-                //RejectionMessage = shop.RejectionMessage,
                 RatingAverage = shop.RatingAverage
             };
         }
+
+
+        private RejectedShopDto MapToDto3(Shop shop)
+        {
+            return new RejectedShopDto
+            {
+                Name = shop.Name,
+                RejectionMessage = shop.RejectionMessage,
+                OwnerUserName = shop.Owner.UserName,
+                ImageUrl = shop.ImageUrl,
+                Description = shop.Description,
+                Status = shop.Status,
+                RatingAverage = shop.RatingAverage
+            };
+        }
+
+
+     
+        #endregion
     }
 }

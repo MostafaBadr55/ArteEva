@@ -19,5 +19,6 @@ namespace ArteEva.Models
 
         // Navigation Properties
         public Product Product { get; set; }
+
     }
 }

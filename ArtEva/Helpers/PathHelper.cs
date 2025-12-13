@@ -10,6 +10,7 @@
                 "product" => "products",
                 "category" => "categories",
                 "user" => "users",
+
                 _ => "general"
             };
         }

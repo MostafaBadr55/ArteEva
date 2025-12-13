@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using ArtEva.DTOs;
 using ArtEva.Services.Implementations;
+using ArtEva.Services.Interfaces;
+
+
 
 namespace ArteEva.Controllers
 {

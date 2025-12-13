@@ -1,8 +1,11 @@
-using ArtEva.DTOs.Admin;
+using ArtEva.DTOs.Product;
 using ArtEva.DTOs.Shop;
+using ArtEva.Services;
+using ArtEva.ViewModels.Product;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ArtEva.Services.Interfaces;
+using ArtEva.DTOs.Admin;
 
 namespace ArtEva.Controllers
 {
@@ -13,13 +16,13 @@ namespace ArtEva.Controllers
     {
         private readonly IShopService _shopService;
         private readonly IAdminService _adminService;
+        private readonly IProductService _productService;
 
-
-
-        public AdminController(IShopService shopService, IAdminService adminService)
+        public AdminController(IShopService shopService, IAdminService adminService, IProductService productService)
         {
             _shopService = shopService;
             _adminService = adminService;
+            _productService = productService;
         }
 
         [HttpGet("shops/pending")]
@@ -50,6 +53,36 @@ namespace ArtEva.Controllers
             var result = await _adminService.AssignRoleAsync(request);
             if (!result.Success)
                 return BadRequest(new { message = result.Message });
+            return Ok(result);
+        }
+
+        [HttpGet("products/pending")]
+        public async Task<IActionResult> GetPending([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        {
+            var result = await _productService.GetAdminPendingProductsAsync(page, pageSize);
+            return Ok(result);
+        }
+
+        [HttpGet("products/approved")]
+        public async Task<IActionResult> GetApproved([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        {
+            var result = await _productService.GetAdminApprovedProductsAsync(page, pageSize);
+            return Ok(result);
+        }
+
+        [HttpPost("{productId:int}/approve")]
+        public async Task<IActionResult> ApproveProduct(int productId)
+        {
+            var result = await _productService.ApproveProductAsync(productId);
+            return Ok(result);
+        }
+        [HttpPost("{productId:int}/reject")]
+        public async Task<IActionResult> RejectProduct(
+        [FromBody] RejectRequestViewModel req)
+        {
+            ProductToReject dto = 
+                new ProductToReject { ProductId = req.ProductId, RejectionMessage= req.RejectionMessage};
+            var result = await _productService.RejectProductAsync(dto);
             return Ok(result);
         }
     }

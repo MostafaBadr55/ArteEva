@@ -1,15 +1,16 @@
 using ArtEva.DTOs.Shop;
-using System.Threading.Tasks;
 
-namespace ArtEva.Services.Interfaces
+namespace ArtEva.Services
 {
     public interface IShopService
     {
-        Task<ShopDto> CreateShopAsync(int userId, CreateShopDto dto);
-        Task<ShopDto> GetShopByOwnerIdAsync(int userId);
-        Task<ShopDto> GetShopByIdAsync(int shopId);
-        Task<IEnumerable<ShopDto>> GetPendingShopsAsync();
-        Task<ShopDto> ApproveShopAsync(int shopId);
-        Task<ShopDto> RejectShopAsync(int shopId, RejectShopDto dto);
+        Task CreateShopAsync(int userId, CreateShopDto dto);
+        Task<CreatedShopDto> GetShopByOwnerIdAsync(int userId);
+        Task<ExistShopDto> GetShopByIdAsync(int shopId);
+        Task<IEnumerable<CreatedShopDto>> GetPendingShopsAsync();
+        Task<CreatedShopDto> ApproveShopAsync(int shopId);
+        Task<RejectedShopDto> RejectShopAsync(int shopId, RejectShopDto dto);
+        Task<bool> ShopExistAsync(int shopId);
+        Task UpdateShopAsync(int UserID, UpdateShopDto updateShopDto);   
     }
 }

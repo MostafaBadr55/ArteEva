@@ -96,7 +96,7 @@ namespace ArtEva.Services.Implementations
             existingCategory.Description = request.Description; 
             existingCategory.ImageUrl = request.ImageUrl;
             existingCategory.UpdatedAt = DateTime.UtcNow;   
-            _categoryRepository.Update(existingCategory); 
+           await _categoryRepository.UpdateAsync(existingCategory); 
             await _categoryRepository.SaveChanges();
             return new CategoryDto
             {
