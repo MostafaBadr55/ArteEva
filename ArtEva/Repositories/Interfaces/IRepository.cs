@@ -13,7 +13,7 @@ namespace ArteEva.Repositories
         Task<T> GetByIdAsync(int id);
         Task<T> GetByIDWithTrackingAsync(int id);
 
-        Task<IEnumerable<T>> GetAllAsync();
+       IQueryable<T> GetAllAsync();
         Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate);
         Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate);
         Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);

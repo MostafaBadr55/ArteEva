@@ -5,6 +5,10 @@ using ArteEva.Repositories;
 using Microsoft.EntityFrameworkCore;
 using ArtEva.Models.Enums;
 using ArtEva.Services.Implementation;
+using System.Data;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using ArtEva.DTOs.Pagination.Product;
+using ArtEva.DTOs.Shop.Products;
 
 namespace ArtEva.Services
 {
@@ -18,7 +22,7 @@ namespace ArtEva.Services
             _shopRepository = shopRepository;
             _context = context;
         }
-
+ 
         public async Task CreateShopAsync(int userId, CreateShopDto dto)
         {
             // Check if user already has a shop
@@ -43,34 +47,12 @@ namespace ArtEva.Services
 
             await _shopRepository.AddAsync(shop);
             await _context.SaveChangesAsync();
+
+
              
         }
 
-        public async Task<CreatedShopDto> GetShopByOwnerIdAsync(int userId)
-        {
-            var shop = await _context.Shops
-             .Where(s => s.OwnerUserId == userId)
-             .Select(s => new CreatedShopDto
-             {
-                    Id = s.Id,
-                 OwnerUserName = s.Owner.UserName,
-                 Name = s.Name,
-                 ImageUrl = s.ImageUrl,
-                 Description = s.Description,
-                 Status = s.Status,
-                 RatingAverage = s.RatingAverage,
-  
-
-             }).FirstOrDefaultAsync();
-
-
-            if (shop == null)
-            {
-                return null;
-            }
-
-            return shop;
-        }
+       
 
       
         public async Task<ExistShopDto> GetShopByIdAsync(int shopId)
@@ -85,16 +67,16 @@ namespace ArtEva.Services
             return MapToDto2(shop);
         }
 
-        public async Task<IEnumerable<CreatedShopDto>> GetPendingShopsAsync()
+        public async Task<IEnumerable<PendingShopDto>> GetPendingShopsAsync()
         {
             var shops = await _context.Shops
                 .Where(s => s.Status == ShopStatus.Pending)
                 .ToListAsync();
 
-            return shops.Select(MapToDto);
+            return shops.Select(MapToDtoPending);
         }
 
-        public async Task<CreatedShopDto> ApproveShopAsync(int shopId)
+        public async Task<ApproveShopDto> ApproveShopAsync(int shopId)
         {
             var shop = await _shopRepository.GetByIdAsync(shopId);
 
@@ -115,7 +97,7 @@ namespace ArtEva.Services
            await _shopRepository.UpdateAsync(shop);
             await _context.SaveChangesAsync();
 
-            return MapToDto(shop);
+            return MapToDtoApprove(shop);
         }
 
         public async Task<RejectedShopDto> RejectShopAsync(int shopId, RejectShopDto dto)
@@ -214,8 +196,34 @@ namespace ArtEva.Services
             };
         }
 
+        private PendingShopDto MapToDtoPending(Shop shop)
+        {
+            return new PendingShopDto
+            {
+                OwnerUserId = shop.Id,
+                Id=shop.Id,
+                Name = shop.Name,
+                ImageUrl = shop.ImageUrl,
+                Description = shop.Description,
+                Status = shop.Status,
+                RatingAverage = shop.RatingAverage
+            };
+        }   
+        private ApproveShopDto MapToDtoApprove(Shop shop)
+        {
+            return new ApproveShopDto
+            {
+                OwnerUserId = shop.OwnerUserId,
+                Name = shop.Name,
+                ImageUrl = shop.ImageUrl,
+                Description = shop.Description,
+                Status = shop.Status,
+                RatingAverage = shop.RatingAverage
+            };
+        }
 
-     
         #endregion
+  
+    
     }
 }

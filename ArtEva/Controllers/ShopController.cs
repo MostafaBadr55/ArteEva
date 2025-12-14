@@ -1,7 +1,9 @@
 using ArtEva.DTOs.Shop;
 using ArtEva.Services;
+using ArtEva.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Numerics;
 using System.Security.Claims;
 
 namespace ArtEva.Controllers
@@ -11,10 +13,12 @@ namespace ArtEva.Controllers
     public class ShopController : ControllerBase
     {
         private readonly IShopService _shopService;
+        private readonly IShopProductService _shopProductService;
 
-        public ShopController(IShopService shopService)
+        public ShopController(IShopService shopService,IShopProductService shopProductService)
         {
             _shopService = shopService;
+            _shopProductService = shopProductService;
         }
 
         [HttpPost]
@@ -43,7 +47,7 @@ namespace ArtEva.Controllers
 
         [HttpGet()]
         [Authorize(Roles = "Seller")]
-        public async Task<IActionResult> GetMyShop()
+        public async Task<IActionResult> GetMyShop(int pageNumber,int pageSize)
         {
             try
             {
@@ -54,7 +58,7 @@ namespace ArtEva.Controllers
                     return Unauthorized(new { message = "User not authenticated" });
                 }
 
-                var shop = await _shopService.GetShopByOwnerIdAsync(userId);
+                var shop = await _shopProductService.GetShopByOwnerIdAsync(userId,pageNumber, pageSize);
                 
                 if (shop == null)
                 {

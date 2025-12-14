@@ -111,6 +111,7 @@ namespace ArtEva
             builder.Services.AddScoped<IAdminService, AdminService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IFileService, FileService>();
+            builder.Services.AddScoped<IProductService, ProductService>();
 
 
             // Register repositories

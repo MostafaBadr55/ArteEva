@@ -7,6 +7,7 @@ namespace ArteEva.Repositories
     {
         public ShopRepository(ApplicationDbContext context) : base(context)
         {
+
         }
     }
 }

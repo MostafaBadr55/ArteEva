@@ -31,9 +31,9 @@ namespace ArteEva.Repositories
             return res;
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public   IQueryable<T> GetAllAsync()
         {
-            return await _dbSet.Where(s=> !s.IsDeleted).ToListAsync();
+            return _dbSet.Where(s => !s.IsDeleted);
         }
 
         public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
