@@ -1,6 +1,7 @@
 ﻿using ArteEva.Repositories;
 using ArtEva.DTOs.Category;
 using ArtEva.DTOs.subCategory;
+using ArtEva.Services.Implementation;
 using ArtEva.Services.Interfaces;
 
 namespace ArtEva.Services
@@ -28,7 +29,7 @@ namespace ArtEva.Services
 
                 };
             }
-            throw new Exception("Category with the same name already exists");
+            throw new ValidationException("Category with the same name already exists");
 
 
 
@@ -86,7 +87,7 @@ namespace ArtEva.Services
             }
             existingSubCategory.Name = req.Name ?? existingSubCategory.Name;
             existingSubCategory.CategoryId = req.CategoryId ?? existingSubCategory.CategoryId;
-            _subCategoryRepository.Update(existingSubCategory);
+           await _subCategoryRepository.UpdateAsync(existingSubCategory);
             await _subCategoryRepository.SaveChanges();
             return new SubCategoryDTO
             {

@@ -29,13 +29,10 @@ namespace ArtEva.Controllers
                 {
                     return Unauthorized(new { message = "User not authenticated" });
                 }
-
-                var shop = await _shopService.CreateShopAsync(userId, dto);
-                
+                 await _shopService.CreateShopAsync(userId, dto);
                 return Ok(new 
                 { 
                     message = "Shop created successfully and sent for admin approval",
-                    shop 
                 });
             }
             catch (Exception ex)
@@ -73,7 +70,7 @@ namespace ArtEva.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetShop(int id)
+        public async Task<IActionResult> GetShopById(int id)
         {
             try
             {
@@ -85,5 +82,21 @@ namespace ArtEva.Controllers
                 return NotFound(new { message = ex.Message });
             }
         }
+        [HttpPut]
+        public async Task<IActionResult> UpdateShop(UpdateShopDto updateShopDto) 
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            int UserID = int.Parse(userIdClaim);
+            
+              await _shopService.UpdateShopAsync(UserID, updateShopDto);
+            
+            return Ok(new 
+            {
+                message = "Shop updated successfully",
+            });
+        }
+
+
     }
 }

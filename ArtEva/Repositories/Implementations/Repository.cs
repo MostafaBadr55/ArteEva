@@ -20,7 +20,7 @@ namespace ArteEva.Repositories
             _dbSet = context.Set<T>();
         }
 
-        public async Task<T> GetByIDWithTracking(int id)
+        public async Task<T> GetByIDWithTrackingAsync(int id)
         {
             var res= await _dbSet.AsTracking().FirstOrDefaultAsync(s=>s.Id==id && !s.IsDeleted);
             return res;
@@ -41,60 +41,21 @@ namespace ArteEva.Repositories
             return await _dbSet.Where(predicate).ToListAsync();
         }
 
-        public async Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
-        {
-            return await _dbSet.FirstOrDefaultAsync(predicate);
-        }
-
-        public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
-        {
-            return await _dbSet.AnyAsync(predicate);
-        }
-
-        public async Task<int> CountAsync(Expression<Func<T, bool>> predicate = null)
-        {
-            if (predicate == null)
-                return await _dbSet.CountAsync();
-            
-            return await _dbSet.CountAsync(predicate);
-        }
-
         public async Task AddAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
         }
-
-        public async Task AddRangeAsync(IEnumerable<T> entities)
+        public async Task UpdateAsync(T entity)
         {
-            await _dbSet.AddRangeAsync(entities);
-        }
-
-        public void Update(T entity)
-        {
-            _dbSet.Update(entity);
-        }
-
-        public void UpdateRange(IEnumerable<T> entities)
-        {
-            _dbSet.UpdateRange(entities);
-        }
-
-        public void Remove(T entity)
-        {
-            _dbSet.Remove(entity);
+              _dbSet.Update(entity);
+            
         }
         public async Task Delete(int id)
         {
-            var res = await GetByIDWithTracking(id);
+            var res = await GetByIDWithTrackingAsync(id);
             if(res!= null)
             res.IsDeleted = true;
         }
-
-        public void RemoveRange(IEnumerable<T> entities)
-        {
-            _dbSet.RemoveRange(entities);
-        }
-
         public async Task<IEnumerable<T>> GetPagedAsync(int pageNumber, int pageSize)
         {
             return await _dbSet
@@ -112,9 +73,54 @@ namespace ArteEva.Repositories
                 .ToListAsync();
         }
 
+        protected IQueryable<T> Query()
+        {
+            return _context.Set<T>();
+        }
         public async Task SaveChanges()
         {
             await _context.SaveChangesAsync();
         }
+
+        #region extraMethods
+        public async Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet.FirstOrDefaultAsync(predicate);
+        }
+
+        public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet.AnyAsync(predicate);
+        }
+
+        public async Task<int> CountAsync(Expression<Func<T, bool>> predicate = null)
+        {
+            if (predicate == null)
+                return await _dbSet.CountAsync();
+
+            return await _dbSet.CountAsync(predicate);
+        }
+        public async Task AddRangeAsync(IEnumerable<T> entities)
+        {
+            await _dbSet.AddRangeAsync(entities);
+        }
+
+
+        public void UpdateRange(IEnumerable<T> entities)
+        {
+            _dbSet.UpdateRange(entities);
+        }
+
+        public void RemoveRange(IEnumerable<T> entities)
+        {
+            _dbSet.RemoveRange(entities);
+        }
+        public void Remove(T entity)
+        {
+            _dbSet.Remove(entity);
+        }
+
+
+        #endregion
     }
 }

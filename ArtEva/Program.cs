@@ -2,6 +2,7 @@ using ArteEva.Data;
 using ArteEva.Models;
 using ArteEva.Repositories;
 using ArteEva.Services;
+using ArtEva.Controllers.Filters.Middlewares;
 using ArtEva.Data.Data_Seeder;
 using ArtEva.Services;
 using ArtEva.Services.Interfaces;
@@ -114,7 +115,6 @@ namespace ArtEva
 
             // Register repositories
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            //builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IShopRepository, ShopRepository>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             builder.Services.AddScoped<ISubCategoryRepository, SubCategoryRepository>();
@@ -135,7 +135,10 @@ namespace ArtEva
             builder.Services.AddScoped<IDisputeRepository, DisputeRepository>();
             builder.Services.AddScoped<IShopFollowerRepository, ShopFollowerRepository>();
             builder.Services.AddScoped<ISubCategoryService, SubCategoryService>();
+  
+            builder.Services.AddScoped<IProductService, ProductService>();
 
+ 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             
@@ -217,10 +220,12 @@ namespace ArtEva
             }
 
             app.UseCors("AllowAngular");
+            //app.UseMiddleware<GlobalExceptionMiddleware>();
+
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseStaticFiles();   
+            app.UseStaticFiles();
             // Map attribute-routed controllers
             app.MapControllers();
 
