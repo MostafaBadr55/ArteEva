@@ -36,9 +36,9 @@ namespace ArteEva.Repositories
             return _dbSet.Where(s => !s.IsDeleted);
         }
 
-        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
+        public  IQueryable<T> FindAsync(Expression<Func<T, bool>> predicate)
         {
-            return await _dbSet.Where(predicate).ToListAsync();
+            return  _dbSet.Where(predicate);
         }
 
         public async Task AddAsync(T entity)
@@ -77,6 +77,7 @@ namespace ArteEva.Repositories
         {
             return _context.Set<T>();
         }
+
         public async Task SaveChanges()
         {
             await _context.SaveChangesAsync();

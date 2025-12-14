@@ -25,8 +25,7 @@ namespace ArtEva.Services.Implementation
         {
 
             CreatedShopDto? shop = 
-              await _shopRepository.GetAllAsync()
-             .Where(s => s.OwnerUserId == userId)
+              await _shopRepository.GetShopByOwnerId(userId)
              .Select(s => new CreatedShopDto
              {
                  Id = s.Id,
