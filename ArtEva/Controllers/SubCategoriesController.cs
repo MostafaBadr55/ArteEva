@@ -1,9 +1,11 @@
 ﻿using ArtEva.DTOs.subCategory;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArtEva.Controllers
 {
+    [Authorize(Roles = "Admin,SuperAdmin")]
     [Route("api/[controller]")]
     [ApiController]
     public class SubCategoriesController : ControllerBase

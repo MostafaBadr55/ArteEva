@@ -57,13 +57,13 @@ namespace ArtEva.Services
 
         public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
         {
-            var res= await _categoryRepository.GetAllAsync();
-            return res.Select(c=> new CategoryDto
+            var res=   _categoryRepository.GetAllAsync();
+            return res.Select(c => new CategoryDto
             {
                 Name = c.Name,
                 Description = c.Description,
                 ImageUrl = c.ImageUrl,
-            }); 
+            }).ToList();
         }
 
         public async Task<CategoryDto?> GetCategoryByIdAsync(int id)

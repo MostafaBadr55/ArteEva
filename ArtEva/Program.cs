@@ -111,6 +111,7 @@ namespace ArtEva
             builder.Services.AddScoped<IAdminService, AdminService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IFileService, FileService>();
+            builder.Services.AddScoped<IProductService, ProductService>();
 
 
             // Register repositories
@@ -135,9 +136,10 @@ namespace ArtEva
             builder.Services.AddScoped<IDisputeRepository, DisputeRepository>();
             builder.Services.AddScoped<IShopFollowerRepository, ShopFollowerRepository>();
             builder.Services.AddScoped<ISubCategoryService, SubCategoryService>();
+  
             builder.Services.AddScoped<IProductService, ProductService>();
 
-
+ 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             

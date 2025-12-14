@@ -51,11 +51,11 @@ namespace ArtEva.Services
 
         public async Task<IEnumerable<SubCategoryDTO>> GetAllSubCategoriesAsync()
         {
-            var subCategories = await _subCategoryRepository.GetAllAsync();
+            var subCategories =   _subCategoryRepository.GetAllAsync();
             return subCategories.Select(c => new SubCategoryDTO
             {
                 Name = c.Name,
-            });
+            }).ToList();    
         }
 
         public async Task<SubCategoryDTO> GetSubCategoryByIdAsync(int id)
