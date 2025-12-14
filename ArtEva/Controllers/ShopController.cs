@@ -45,10 +45,11 @@ namespace ArtEva.Controllers
             }
         }
 
-        [HttpGet()]
-        [Authorize(Roles = "Seller")]
+         [HttpGet()]
+         [Authorize(Roles = "Seller")]
         public async Task<IActionResult> GetMyShop(int pageNumber,int pageSize)
-        {
+ 
+         {
             try
             {
                 var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);

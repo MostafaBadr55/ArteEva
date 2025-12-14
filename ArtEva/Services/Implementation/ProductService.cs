@@ -5,6 +5,7 @@ using ArtEva.DTOs.Pagination;
 using ArtEva.DTOs.Pagination.Product;
 using ArtEva.DTOs.Product;
 using ArtEva.DTOs.ProductImage;
+using ArtEva.DTOs.Shop;
 using ArtEva.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
@@ -183,6 +184,7 @@ namespace ArtEva.Services
         }
         #endregion
 
+        #region Update Product
         // UPDATE PRODUCT
         public async Task<CreatedProductDto> UpdateProductAsync(int userId, UpdateProductDto dto)
         {
@@ -196,11 +198,9 @@ namespace ArtEva.Services
 
             // update product base data
             product.Title = dto.Title;
-            product.Price = dto.Price;
             product.CategoryId = dto.CategoryId;
             product.SubCategoryId = dto.SubCategoryId;
             product.UpdatedAt = DateTime.UtcNow;
-            product.Status = ProductStatus.InActive;
             product.ApprovalStatus = ProductApprovalStatus.Pending;
 
              _productRepository.UpdateAsync(product);
@@ -215,6 +215,63 @@ namespace ArtEva.Services
             var updated = await _productRepository.GetProductWithImagesAsync(dto.productId);
             return MapToProductDto(updated);
         }
+
+        public async Task<UpdatedProductStatusDto> UpdateProductStatusAsync (int userId, int shopId, int productId, ProductStatus status)
+        {
+            await ValidateSellerShopOwnershipAsync(userId, shopId);
+            var productFromDb = await _productRepository.GetByIDWithTrackingAsync(productId);
+            if (productFromDb == null)
+                throw new ValidationException("Product not found.");
+
+            if (productFromDb.ShopId != shopId)
+                throw new ValidationException("Product does not belong to this shop.");
+
+            if (!Enum.IsDefined(typeof(ProductStatus), status))
+                throw new ValidationException("Invalid product status.");
+
+
+            productFromDb.Status = status;
+            productFromDb.UpdatedAt = DateTime.UtcNow;
+            await _productRepository.SaveChanges();
+
+            var updated = new UpdatedProductStatusDto
+            {
+                IsUpdated = true,
+                ProductName = productFromDb.Title,
+                UpdatedStatus = productFromDb.Status
+            };
+            return updated;
+        }
+
+        public async Task<UpdatedProductPriceDto> UpdateProductPriceAsync(int userId, int shopId, int productId, decimal newPrice)
+        {
+            await ValidateSellerShopOwnershipAsync(userId, shopId);
+
+            var product = await _productRepository.GetByIDWithTrackingAsync(productId);
+
+            if (product == null || product.IsDeleted)
+                throw new ValidationException("Product not found.");
+            if (product.ShopId != shopId)
+                throw new ValidationException("Product does not belong to this shop.");
+            if (newPrice <= 0)
+                throw new ValidationException("Price must be greater than zero.");
+
+
+
+            product.Price = newPrice;
+            product.UpdatedAt = DateTime.UtcNow;
+
+            await _productRepository.SaveChanges();
+            UpdatedProductPriceDto updated = new UpdatedProductPriceDto
+            {
+                IsChanged = true,
+                Price = product.Price,
+                ProductName = product.Title
+            };
+            return updated;
+        }
+
+        #endregion
 
         // Admin Actions
         public async Task<ApprovedProductDto> ApproveProductAsync(int productId)
@@ -272,14 +329,7 @@ namespace ArtEva.Services
         #region Private methods
         private async Task ValidateProductCreationAsync(int userId, int shopId, int categoryId, int subCategoryId)
         {
-            // 1. Validate shop
-            var shop = await _shopService.GetShopByIdAsync(shopId);
-
-            if (shop == null)
-                throw new ValidationException("Shop not found.");
-
-            if (shop.OwnerUserId != userId)
-                throw new ValidationException("You are not the owner of this shop.");
+            var shop = await ValidateSellerShopOwnershipAsync(userId, shopId);
 
             if (shop.Status == ShopStatus.Suspended|| shop.Status == ShopStatus.Pending || shop.Status == ShopStatus.Rejected)
                 throw new ValidationException("Adding products is not allowed in your shop status.");
@@ -299,6 +349,19 @@ namespace ArtEva.Services
 
             if (subCategory == null)
                 throw new ValidationException("Invalid subcategory or does not belong to the selected category.");
+        }
+
+        private async Task<ExistShopDto> ValidateSellerShopOwnershipAsync(int userId, int shopId)
+        {
+            // 1. Validate shop
+            var shop = await _shopService.GetShopByIdAsync(shopId);
+
+            if (shop == null)
+                throw new ValidationException("Shop not found.");
+
+            if (shop.OwnerUserId != userId)
+                throw new ValidationException("You are not the owner of this shop.");
+            return shop;
         }
 
         #region Mapping
