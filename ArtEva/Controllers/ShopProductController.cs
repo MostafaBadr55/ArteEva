@@ -1,5 +1,6 @@
 ﻿using ArtEva.DTOs.Product;
 using ArtEva.Services;
+using ArtEva.Services.Interfaces;
 using ArtEva.ViewModels.Product;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -13,11 +14,11 @@ namespace ArtEva.Controllers
     [Authorize(Roles ="Seller")]
     public class ShopProductController : ControllerBase
     {
-        private readonly IProductService _productService;
+        private readonly IShopProductService _shopProductService;
 
-        public ShopProductController(IProductService productService)
+        public ShopProductController(IShopProductService productService)
         {
-            _productService = productService;
+            _shopProductService = productService;
         }
 
         [HttpPost]
@@ -26,18 +27,18 @@ namespace ArtEva.Controllers
             dto.ShopId = shopId;
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            var product = await _productService.CreateProductAsync(userId, dto);
+            var product = await _shopProductService.CreateShopProductAsync(userId,dto);
 
             return Ok(product);
         }
 
-        [HttpPut("/Update")]
+        [HttpPatch("/Update")]
         public async Task<IActionResult> UpdateProduct(
         int shopId, int productId, [FromBody] UpdateProductDto dto)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            var updated = await _productService.UpdateProductAsync(userId,dto);
+            var updated = await _shopProductService.UpdateShopProductAsync(userId,dto);
             return Ok(updated);
         }
         [HttpPatch("{productId:int}/price")]
@@ -48,7 +49,7 @@ namespace ArtEva.Controllers
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            var result = await _productService.UpdateProductPriceAsync(
+            var result = await _shopProductService.UpdateProductPriceAsync(
                 userId,
                 shopId,
                 productId,
@@ -62,7 +63,7 @@ namespace ArtEva.Controllers
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            var result = await _productService.UpdateProductStatusAsync(userId, shopId,productId,
+            var result = await _shopProductService.UpdateProductStatusAsync(userId, shopId,productId,
                                                                      request.Status);
             return Ok(result);
         }
