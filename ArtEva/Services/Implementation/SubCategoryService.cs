@@ -95,5 +95,16 @@ namespace ArtEva.Services
             };
 
         }
+
+        //added
+        public async Task<bool> ValidateSubCategoryAsync(int subCategoryId, int categoryId)
+        {
+            var exists = await _subCategoryRepository.AnyAsync(sc =>
+                sc.Id == subCategoryId &&
+                sc.CategoryId == categoryId &&
+                !sc.IsDeleted);
+            return exists;
+         
+        }
     }
 }

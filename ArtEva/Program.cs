@@ -5,6 +5,7 @@ using ArteEva.Services;
 using ArtEva.Controllers.Filters.Middlewares;
 using ArtEva.Data.Data_Seeder;
 using ArtEva.Services;
+using ArtEva.Services.Implementation;
 using ArtEva.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -112,6 +113,7 @@ namespace ArtEva
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IFileService, FileService>();
             builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<IShopProductService, ShopProductService>();
 
 
             // Register repositories

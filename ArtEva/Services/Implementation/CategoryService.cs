@@ -2,6 +2,7 @@
 using ArteEva.Models;
 using ArteEva.Repositories;
 using ArtEva.DTOs.Category;
+using ArtEva.Services.Implementation;
 using Azure.Core;
 
 namespace ArtEva.Services
@@ -103,6 +104,14 @@ namespace ArtEva.Services
                 Description = existingCategory.Description,
                 ImageUrl = existingCategory.ImageUrl,
             };
+        }
+
+        //added
+        public async Task<bool> ValidateCategoryExistsAsync(int categoryId)
+        {
+            bool exists = await _categoryRepository.AnyAsync(c =>
+                c.Id == categoryId && !c.IsDeleted);
+            return exists;
         }
 
     }
