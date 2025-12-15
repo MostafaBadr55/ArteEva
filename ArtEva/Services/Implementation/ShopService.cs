@@ -42,7 +42,7 @@ namespace ArtEva.Services
             if (shop == null)
                 throw new ValidationException("Shop not found.");
 
-            if (shop.Status != ShopStatus.Active)
+            if (shop.Status != ShopStatus.Active && shop.Status != ShopStatus.Inactive)
                 throw new ValidationException(
                     $"You cannot add or modify products while shop status is '{shop.Status}'."
                 );

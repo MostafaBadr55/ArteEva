@@ -182,8 +182,9 @@ namespace ArtEva.Services.Implementation
         #region Private methods
         private async Task ValidateProductCreationAsync(int userId, int shopId, int categoryId, int subCategoryId)
         {
-             await _shopService.ValidateShopCanAddProductsAsync(userId, shopId);
-                          // 2. Validate category exists
+            await _shopService.ValidateShopOwnershipAsync(userId, shopId);
+            await _shopService.ValidateShopCanAddProductsAsync(shopId);
+            // 2. Validate category exists
             var categoryExists = await _categoryService.ValidateCategoryExistsAsync(categoryId);
 
             if (!categoryExists)
