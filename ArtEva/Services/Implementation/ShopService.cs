@@ -22,7 +22,32 @@ namespace ArtEva.Services
             _shopRepository = shopRepository;
             _context = context;
         }
- 
+
+        public async Task<ExistShopDto> ValidateShopOwnershipAsync(int userId, int shopId)
+        {
+            // 1. Validate shop
+            var shop = await GetShopByIdAsync(shopId);
+
+            if (shop == null)
+                throw new ValidationException("Shop not found.");
+
+            if (shop.OwnerUserId != userId)
+                throw new ValidationException("You are not the owner of this shop.");
+            return shop;
+        }
+        public async Task ValidateShopCanAddProductsAsync(int shopId)
+        {
+            var shop = await _shopRepository.GetByIdAsync(shopId);
+
+            if (shop == null)
+                throw new ValidationException("Shop not found.");
+
+            if (shop.Status != ShopStatus.Active)
+                throw new ValidationException(
+                    $"You cannot add or modify products while shop status is '{shop.Status}'."
+                );
+        }
+
         public async Task CreateShopAsync(int userId, CreateShopDto dto)
         {
             // Check if user already has a shop

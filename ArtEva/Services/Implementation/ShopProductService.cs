@@ -25,17 +25,15 @@ namespace ArtEva.Services.Implementation
 
         public ShopProductService(
             IShopService shopService,
-<<<<<<< HEAD
-            IProductService productService
+             IProductService productService
             ,IShopRepository shopRepository
-            , IConfiguration config)
-=======
-            IProductService productService,
-            ICategoryService categoryService,
+            , IConfiguration config,
+              ICategoryService categoryService,
             ISubCategoryService subCategoryService
-            ,IShopRepository shopRepository)
->>>>>>> 1b51555cde9f05a9d640583b68916dc21b16f5ea
-        {
+            )
+  
+           
+         {
             _shopService = shopService;
             _productService = productService;
             _categoryService = categoryService;
@@ -140,7 +138,8 @@ namespace ArtEva.Services.Implementation
 
         public async Task<UpdatedProductStatusDto> UpdateProductStatusAsync(int userId, int shopId, int productId, ProductStatus status)
         {
-            await ValidateShopOwnershipAsync(userId, shopId);
+            await _shopService.ValidateShopOwnershipAsync(userId, shopId);
+            await _shopService.ValidateShopCanAddProductsAsync(shopId);
             // 2) Load product
             var product = await _productService.GetProductForUpdateAsync(productId);
 
@@ -160,7 +159,7 @@ namespace ArtEva.Services.Implementation
 
         public async Task<UpdatedProductPriceDto> UpdateProductPriceAsync(int userId, int shopId, int productId, decimal newPrice)
         {
-            await ValidateShopOwnershipAsync(userId, shopId);
+            await _shopService.ValidateShopOwnershipAsync(userId, shopId);
 
             var product = await _productService.GetProductForUpdateAsync(productId);
 
@@ -183,12 +182,8 @@ namespace ArtEva.Services.Implementation
         #region Private methods
         private async Task ValidateProductCreationAsync(int userId, int shopId, int categoryId, int subCategoryId)
         {
-            var shop = await ValidateShopOwnershipAsync(userId, shopId);
-
-            if (shop.Status == ShopStatus.Suspended || shop.Status == ShopStatus.Pending || shop.Status == ShopStatus.Rejected)
-                throw new ValidationException("Adding products is not allowed in your shop status.");
-
-            // 2. Validate category exists
+             await _shopService.ValidateShopCanAddProductsAsync(userId, shopId);
+                          // 2. Validate category exists
             var categoryExists = await _categoryService.ValidateCategoryExistsAsync(categoryId);
 
             if (!categoryExists)
@@ -200,19 +195,7 @@ namespace ArtEva.Services.Implementation
             if (!subCategory)
                 throw new ValidationException("Invalid subcategory or does not belong to the selected category.");
         }
-
-        private async Task<ExistShopDto> ValidateShopOwnershipAsync(int userId, int shopId)
-        {
-            // 1. Validate shop
-            var shop = await _shopService.GetShopByIdAsync(shopId);
-
-            if (shop == null)
-                throw new ValidationException("Shop not found.");
-
-            if (shop.OwnerUserId != userId)
-                throw new ValidationException("You are not the owner of this shop.");
-            return shop;
-        }
+ 
 
         #endregion
 

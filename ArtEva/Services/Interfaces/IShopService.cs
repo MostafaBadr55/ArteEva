@@ -5,6 +5,10 @@ namespace ArtEva.Services
 {
     public interface IShopService
     {
+        public Task<ExistShopDto> ValidateShopOwnershipAsync(int userId, int shopId);
+
+        public Task ValidateShopCanAddProductsAsync(int shopId);
+
         Task CreateShopAsync(int userId, CreateShopDto dto);
         Task<ExistShopDto> GetShopByIdAsync(int shopId);
         Task<IEnumerable<PendingShopDto>> GetPendingShopsAsync();
