@@ -20,14 +20,12 @@ namespace ArtEva.Services.Implementation
         private readonly IProductService _productService;
         private readonly ICategoryService _categoryService;
         private readonly ISubCategoryService _subCategoryService;
-        private readonly IShopRepository _shopRepository;
-        private readonly IConfiguration _config;
+         private readonly IConfiguration _config;
 
         public ShopProductService(
             IShopService shopService,
              IProductService productService
-            ,IShopRepository shopRepository
-            , IConfiguration config,
+             , IConfiguration config,
               ICategoryService categoryService,
             ISubCategoryService subCategoryService
             )
@@ -38,25 +36,17 @@ namespace ArtEva.Services.Implementation
             _productService = productService;
             _categoryService = categoryService;
             _subCategoryService = subCategoryService;
-            _shopRepository = shopRepository;
-            _config = config;
+             _config = config;
         }
         public async Task<CreatedShopDto> GetShopByOwnerIdAsync(int userId, int pageNumber, int pageSize)
         {
-            var baseUrl = _config["UploadSettings:BaseUrl"];
-            CreatedShopDto? shop = 
-              await _shopRepository.GetShopByOwnerId(userId)
-             .Select(s => new CreatedShopDto
-             {
-                 Id = s.Id,
-                 OwnerUserName = s.Owner.UserName,
-                 Name = s.Name,
-                 ImageUrl = $"{baseUrl}/uploads/shops/{s.ImageUrl}",
-                 Description = s.Description,
-                 Status = s.Status,
-                 RatingAverage = s.RatingAverage,
-                  
-             }).FirstOrDefaultAsync();
+             
+             CreatedShopDto? shop = 
+              await _shopService.GetShopByOwnerIdAsync(userId);
+
+            if (shop == null)
+                throw new ValidationException("You don't have an active shop yet.");
+
 
             var res1 = await GetShopActiveProductsAsync(shop.Id, pageNumber, pageSize);
             var res2 = await GetShopInactiveProductsAsync(shop.Id, pageNumber, pageSize);
@@ -138,8 +128,9 @@ namespace ArtEva.Services.Implementation
 
         public async Task<UpdatedProductStatusDto> UpdateProductStatusAsync(int userId, int shopId, int productId, ProductStatus status)
         {
-            await _shopService.ValidateShopOwnershipAsync(userId, shopId);
-            await _shopService.ValidateShopCanAddProductsAsync(shopId);
+            var shop = await _shopService
+                .EnsureUserCanManageShopProductsAsync(userId, shopId);
+
             // 2) Load product
             var product = await _productService.GetProductForUpdateAsync(productId);
 
@@ -159,7 +150,7 @@ namespace ArtEva.Services.Implementation
 
         public async Task<UpdatedProductPriceDto> UpdateProductPriceAsync(int userId, int shopId, int productId, decimal newPrice)
         {
-            await _shopService.ValidateShopOwnershipAsync(userId, shopId);
+            await _shopService.EnsureShopOwnershipAsync(userId, shopId);
 
             var product = await _productService.GetProductForUpdateAsync(productId);
 
@@ -182,8 +173,9 @@ namespace ArtEva.Services.Implementation
         #region Private methods
         private async Task ValidateProductCreationAsync(int userId, int shopId, int categoryId, int subCategoryId)
         {
-            await _shopService.ValidateShopOwnershipAsync(userId, shopId);
-            await _shopService.ValidateShopCanAddProductsAsync(shopId);
+            var shop = await _shopService
+                       .EnsureUserCanManageShopProductsAsync(userId, shopId);
+
             // 2. Validate category exists
             var categoryExists = await _categoryService.ValidateCategoryExistsAsync(categoryId);
 
@@ -196,7 +188,10 @@ namespace ArtEva.Services.Implementation
             if (!subCategory)
                 throw new ValidationException("Invalid subcategory or does not belong to the selected category.");
         }
- 
+
+      
+
+    
 
         #endregion
 
