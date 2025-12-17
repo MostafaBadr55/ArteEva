@@ -6,6 +6,7 @@ namespace ArteEva.Repositories
     public interface IShopRepository : IRepository<Shop>
     {
        IQueryable<Shop> GetShopByOwnerId(int userId);
+        IQueryable<Shop> GetPendingShops();
 
     }
 }

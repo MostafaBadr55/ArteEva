@@ -1,5 +1,6 @@
 using ArteEva.Data;
 using ArteEva.Models;
+using ArtEva.Models.Enums;
 
 namespace ArteEva.Repositories
 {
@@ -14,5 +15,11 @@ namespace ArteEva.Repositories
         {
            return  Query().Where(s => s.OwnerUserId == userId);
         }
+
+        public IQueryable<Shop> GetPendingShops()
+        {
+            return GetAllAsync().Where(s => s.Status == ShopStatus.Pending);
+        }
+
     }
 }

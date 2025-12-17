@@ -90,6 +90,7 @@ namespace ArtEva.Controllers
                 return NotFound(new { message = ex.Message });
             }
         }
+        [Authorize(Roles = "Seller")]
         [HttpPut]
         public async Task<IActionResult> UpdateShop(UpdateShopDto updateShopDto) 
         {
@@ -97,14 +98,26 @@ namespace ArtEva.Controllers
 
             int UserID = int.Parse(userIdClaim);
             
-              await _shopService.UpdateShopAsync(UserID, updateShopDto);
+              await _shopService.UpdateShopInfoAsync(UserID, updateShopDto);
             
             return Ok(new 
             {
                 message = "Shop updated successfully",
             });
         }
+        // PATCH api/shop/{shopId}/status
+        [HttpPatch("{shopId}/status")]
+        [Authorize(Roles = "Seller")]
+        public async Task<IActionResult> UpdateShopStatus(
+            int shopId,
+            [FromBody] UpdateShopStatusDto dto)
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+             int userId = int.Parse(userIdClaim);
+             await _shopService.UpdateShopStatusBySellerAsync(userId, shopId, dto.NewStatus);
+            return NoContent();
+        }
 
     }
 }
