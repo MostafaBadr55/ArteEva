@@ -39,15 +39,16 @@ namespace ArtEva.Services
              
             return shop;
         }
-       
+
         public async Task CreateShopAsync(int userId, CreateShopDto dto)
         {
-            // Check if user already has a shop
-            Shop? existingShop = await _shopRepository.GetShopByOwnerId(userId).FirstOrDefaultAsync();
-                 
+            var existingShop = await _shopRepository
+                .GetShopByOwnerId(userId)
+                .FirstOrDefaultAsync();
+
             if (existingShop != null)
             {
-                throw new Exception("User already has a shop");
+                throw new NotValidException("User already has a shop");
             }
 
             var shop = new Shop
@@ -63,17 +64,20 @@ namespace ArtEva.Services
 
             await _shopRepository.AddAsync(shop);
             await _shopRepository.SaveChanges();
-             
         }
-         
-      
+
+
+
         public async Task<ExistShopDto> GetShopByIdAsync(int shopId)
         {
             var shop = await LoadShopOrThrowAsync(shopId);
-            if(shop.Status != ShopStatus.Active && shop.Status != ShopStatus.Inactive)
+
+            if (shop.Status != ShopStatus.Active && shop.Status != ShopStatus.Inactive)
             {
-                throw new Exception("Shop is not active");
-            }   
+                throw new ForbiddenException("Shop is not available");
+            }
+
+            shop.ImageUrl = $"uploads/shops/{shop.ImageUrl}";
 
             return MapToDto2(shop);
         }
@@ -82,6 +86,10 @@ namespace ArtEva.Services
         {
             var shops = await _shopRepository.GetPendingShops()
                 .ToListAsync();
+            foreach (var shop in shops)
+            {
+                shop.ImageUrl = $"uploads/shops/{shop.ImageUrl}";
+            }
 
             return shops.Select(MapToDtoPending);
         }

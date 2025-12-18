@@ -46,7 +46,7 @@ namespace ArtEva.Services.Implementation
               await _shopService.GetShopByOwnerIdAsync(userId);
 
             if (shop == null)
-                throw new NotValidException("You don't have an active shop yet.");
+                throw new NotFoundException("No shop found for this user");
 
 
             var res1 = await GetShopActiveProductsAsync( userId, shop.Id, pageNumber, pageSize);
@@ -71,11 +71,6 @@ namespace ArtEva.Services.Implementation
             }).ToList();
             shop.inActiveProductDtos = InactiveProductDtos;
             shop.activeProductDtos = ActiveProductDtos;
-            if (shop == null)
-            {
-                return null;
-            }
-
             return shop;
         }
 

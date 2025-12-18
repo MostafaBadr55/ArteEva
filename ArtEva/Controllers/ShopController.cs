@@ -28,98 +28,61 @@ namespace ArtEva.Controllers
         [Authorize(Roles = "Seller,Admin")]
         public async Task<IActionResult> CreateShop([FromBody] CreateShopDto dto)
         {
-            try
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
             {
-                var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                
-                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
-                {
-                    return Unauthorized(new { message = "User not authenticated" });
-                }
-                 await _shopService.CreateShopAsync(userId, dto);
-                return Ok(new 
-                { 
-                    message = "Shop created successfully and sent for admin approval",
-                });
+                return Unauthorized(new { message = "User not authenticated" });
             }
-            catch (Exception ex)
+
+            await _shopService.CreateShopAsync(userId, dto);
+
+            return Ok(new
             {
-                return BadRequest(new { message = ex.Message });
-            }
+                message = "Shop created successfully and sent for admin approval"
+            });
         }
 
-        [HttpGet()]
- 
+
+
+        [HttpGet]  
         [Authorize(Roles = "Seller")]
-        public async Task<IActionResult> GetMyShop(int pageNumber,int pageSize)
+        public async Task<IActionResult> GetMyShop(int pageNumber, int pageSize)
         {
-            try
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
             {
-                var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                
-                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
-                {
-                    return Unauthorized(new { message = "User not authenticated" });
-                }
-
-                var shop = await _shopProductService.GetShopByOwnerIdAsync(userId,pageNumber, pageSize);
-
-
-                if (shop == null)
-                {
-                    return NotFound(new { message = "No shop found for this user" });
-                }
-
-                shop.ImageUrl = Request.BuildPublicUrl(shop.ImageUrl);
-                if (shop.activeProductDtos != null)
-                {
-                    foreach (var product in shop.activeProductDtos)
-                    {
-                        if (product.Images == null) continue;
-
-                        foreach (var image in product.Images)
-                        {
-                            image.Url = Request.BuildPublicUrl(image.Url);
-                        }
-                    }
-                }
-
-                if (shop.inActiveProductDtos != null)
-                {
-                    foreach (var product in shop.inActiveProductDtos)
-                    {
-                        if (product.Images == null) continue;
-
-                        foreach (var image in product.Images)
-                        {
-                            image.Url = Request.BuildPublicUrl(image.Url);
-                        }
-                    }
-                }
-
-                var ProductShopViewModel=  ShopMappingExtensions.ToViewModel(shop);
-
-                return Ok(ProductShopViewModel);
+                return Unauthorized(new { message = "User not authenticated" });
             }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+
+            var shop = await _shopProductService
+                .GetShopByOwnerIdAsync(userId, pageNumber, pageSize);
+
+            // Shop image
+            shop.ImageUrl = Request.BuildPublicUrl(shop.ImageUrl);
+
+            // Product images (Active & Inactive)
+            Request.BuildProductImagesUrls(shop.activeProductDtos);
+            Request.BuildProductImagesUrls(shop.inActiveProductDtos);
+
+            var productShopViewModel = ShopMappingExtensions.ToViewModel(shop);
+
+            return Ok(productShopViewModel);
         }
+
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetShopById(int id)
         {
-            try
-            {
-                var shop = await _shopService.GetShopByIdAsync(id);
-                return Ok(shop);
-            }
-            catch (Exception ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
+            var shop = await _shopService.GetShopByIdAsync(id);
+
+            shop.ImageUrl = Request.BuildPublicUrl(shop.ImageUrl);
+
+            return Ok(shop);
         }
+
+
         [Authorize(Roles = "Seller")]
         [HttpPut]
         public async Task<IActionResult> UpdateShop(UpdateShopDto updateShopDto) 
@@ -138,9 +101,7 @@ namespace ArtEva.Controllers
         // PATCH api/shop/{shopId}/status
         [HttpPatch("{shopId}/status")]
         [Authorize(Roles = "Seller")]
-        public async Task<IActionResult> UpdateShopStatus(
-            int shopId,
-            [FromBody] UpdateShopStatusDto dto)
+        public async Task<IActionResult> UpdateShopStatus(int shopId, [FromBody] UpdateShopStatusDto dto)
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
 

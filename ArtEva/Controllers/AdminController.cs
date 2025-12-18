@@ -1,7 +1,9 @@
+using ArteEva.Models;
 using ArtEva.Application.Products.Quiries;
 using ArtEva.DTOs.Admin;
 using ArtEva.DTOs.Product;
 using ArtEva.DTOs.Shop;
+using ArtEva.Extensions;
 using ArtEva.Models.Enums;
 using ArtEva.Services;
 using ArtEva.ViewModels.Product;
@@ -30,6 +32,11 @@ namespace ArtEva.Controllers
         public async Task<IActionResult> GetPendingShops()
         {
             var shops = await _shopService.GetPendingShopsAsync();
+            foreach (var shop in shops)
+            {
+                if (shop.ImageUrl == null) continue;
+                shop.ImageUrl = Request.BuildPublicUrl(shop.ImageUrl);
+            }
             return Ok(shops);
         }
 
