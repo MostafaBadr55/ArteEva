@@ -1,11 +1,14 @@
 using ArteEva.Data;
 using ArteEva.Models;
 using ArteEva.Repositories;
-using ArteEva.Services;
 using ArtEva.Controllers.Filters.Middlewares;
 using ArtEva.Data.Data_Seeder;
 using ArtEva.Services;
+<<<<<<< HEAD
+using ArtEva.Services.Implementations;
+=======
 using ArtEva.Services.Implementation;
+>>>>>>> 7ef7d5956491c35f60b9324084ee1e37d86f8eee
 using ArtEva.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;

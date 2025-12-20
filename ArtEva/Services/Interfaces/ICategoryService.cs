@@ -1,6 +1,6 @@
 ﻿using ArtEva.DTOs.Category;
 
-namespace ArtEva.Services
+namespace ArtEva.Services.Interfaces
 {
     public interface ICategoryService
     {

@@ -9,16 +9,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using ArteEva.Models;
 using ArtEva.DTOs;
+using ArtEva.Services.Interfaces;
 
 
-namespace ArteEva.Services
+namespace ArtEva.Services.Implementations
 {
-    public interface IAuthService
-    {
-        Task<AuthResponse> RegisterAsync(RegisterRequestDTO request);
-        Task<AuthResponse> LoginAsync(LoginRequestDTO request);
-        Task<bool> UserExistsAsync(string email);
-    }
+   
 
     public class AuthService : IAuthService
     {

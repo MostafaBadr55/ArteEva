@@ -1,4 +1,4 @@
-﻿namespace ArtEva.Services
+﻿namespace ArtEva.Services.Interfaces
 {
     public interface IFileService
     {

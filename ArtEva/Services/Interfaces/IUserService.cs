@@ -1,6 +1,6 @@
 ﻿using ArtEva.DTOs.User;
 
-namespace ArtEva.Services
+namespace ArtEva.Services.Interfaces
 {
     public interface IUserService
     {

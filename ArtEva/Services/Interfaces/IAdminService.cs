@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using ArtEva.DTOs.Admin;
 using ArtEva.ViewModels.Admin;
 
-namespace ArtEva.Services
+namespace ArtEva.Services.Interfaces
 {
     public interface IAdminService
     {

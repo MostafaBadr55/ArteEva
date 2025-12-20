@@ -1,7 +1,7 @@
-﻿
-using ArtEva.Helpers;
+﻿using ArtEva.Helpers;
+using ArtEva.Services.Interfaces;
 
-namespace ArtEva.Services
+namespace ArtEva.Services.Implementations
 {
     public class FileService : IFileService
     {

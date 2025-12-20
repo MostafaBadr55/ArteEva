@@ -4,8 +4,9 @@ using ArtEva.DTOs.Admin;
 using ArtEva.ViewModels.Admin;
 using ArteEva.Models;
 using Microsoft.AspNetCore.Identity;
+using ArtEva.Services.Interfaces;
 
-namespace ArtEva.Services
+namespace ArtEva.Services.Implementations
 {
     
     public class AdminService : IAdminService

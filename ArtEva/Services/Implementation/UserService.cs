@@ -4,8 +4,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ArteEva.Models;
 using UserRoleEnum = ArtEva.DTOs.User.UserRole;
+using ArtEva.Services.Interfaces;
 
-namespace ArtEva.Services
+namespace ArtEva.Services.Implementations
 {
     public class UserService : IUserService
     {

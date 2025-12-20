@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+﻿using ArtEva.DTOs.Category;
+using ArtEva.Services.Interfaces;
+=======
 ﻿using ArteEva.Models;
 using ArtEva.DTOs.Category;
 using ArtEva.Extensions;
 using ArtEva.Services;
+>>>>>>> 7ef7d5956491c35f60b9324084ee1e37d86f8eee
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
