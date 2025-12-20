@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ArtEva.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251208161902_init")]
-    partial class init
+    [Migration("20251215182412_ShopApprovalStatus")]
+    partial class ShopApprovalStatus
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -479,6 +479,9 @@ namespace ArtEva.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("ApprovalStatus")
+                        .HasColumnType("int");
+
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
@@ -495,6 +498,9 @@ namespace ArtEva.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<string>("RejectionMessage")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
@@ -506,6 +512,9 @@ namespace ArtEva.Migrations
                         .HasColumnType("nvarchar(80)");
 
                     b.Property<int>("ShopId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.Property<int>("SubCategoryId")
@@ -720,8 +729,8 @@ namespace ArtEva.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "2f4b4d00-e8a8-4e83-bb1a-a030bdf6e638",
-                            CreatedAt = new DateTime(2025, 12, 8, 16, 18, 59, 603, DateTimeKind.Utc).AddTicks(6959),
+                            ConcurrencyStamp = "dda8857f-f5b8-49d9-a734-026d2819e562",
+                            CreatedAt = new DateTime(2025, 12, 15, 18, 24, 9, 650, DateTimeKind.Utc).AddTicks(6899),
                             Description = "Administrator with full system access",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
@@ -729,8 +738,8 @@ namespace ArtEva.Migrations
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "0fea3813-5128-44b5-8a18-b7c3109bc603",
-                            CreatedAt = new DateTime(2025, 12, 8, 16, 18, 59, 603, DateTimeKind.Utc).AddTicks(6982),
+                            ConcurrencyStamp = "1067e2b1-9efc-42d9-9df2-c06c257c0c14",
+                            CreatedAt = new DateTime(2025, 12, 15, 18, 24, 9, 650, DateTimeKind.Utc).AddTicks(6910),
                             Description = "Customer who can browse and purchase artworks",
                             Name = "Buyer",
                             NormalizedName = "BUYER"
@@ -738,8 +747,8 @@ namespace ArtEva.Migrations
                         new
                         {
                             Id = 3,
-                            ConcurrencyStamp = "89f77ff9-a5ab-4afb-a988-755ed1317dba",
-                            CreatedAt = new DateTime(2025, 12, 8, 16, 18, 59, 603, DateTimeKind.Utc).AddTicks(6992),
+                            ConcurrencyStamp = "57dffefe-8cd4-4db8-8837-88bf12b9e410",
+                            CreatedAt = new DateTime(2025, 12, 15, 18, 24, 9, 650, DateTimeKind.Utc).AddTicks(6917),
                             Description = "Artist who can create shop and sell artworks",
                             Name = "Seller",
                             NormalizedName = "SELLER"

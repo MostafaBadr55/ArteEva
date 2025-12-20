@@ -29,7 +29,7 @@ namespace ArtEva.Services
 
                 };
             }
-            throw new ValidationException("Category with the same name already exists");
+            throw new NotValidException("Category with the same name already exists");
 
 
 
@@ -51,11 +51,11 @@ namespace ArtEva.Services
 
         public async Task<IEnumerable<SubCategoryDTO>> GetAllSubCategoriesAsync()
         {
-            var subCategories = await _subCategoryRepository.GetAllAsync();
+            var subCategories =   _subCategoryRepository.GetAllAsync();
             return subCategories.Select(c => new SubCategoryDTO
             {
                 Name = c.Name,
-            });
+            }).ToList();    
         }
 
         public async Task<SubCategoryDTO> GetSubCategoryByIdAsync(int id)
@@ -94,6 +94,17 @@ namespace ArtEva.Services
                 Name = existingSubCategory.Name
             };
 
+        }
+
+        //added
+        public async Task<bool> ValidateSubCategoryAsync(int subCategoryId, int categoryId)
+        {
+            var exists = await _subCategoryRepository.AnyAsync(sc =>
+                sc.Id == subCategoryId &&
+                sc.CategoryId == categoryId &&
+                !sc.IsDeleted);
+            return exists;
+         
         }
     }
 }

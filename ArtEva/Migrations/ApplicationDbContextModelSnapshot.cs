@@ -43,6 +43,9 @@ namespace ArtEva.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("IsDefault")
                         .HasColumnType("bit");
 
@@ -93,6 +96,9 @@ namespace ArtEva.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -122,6 +128,9 @@ namespace ArtEva.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DeletedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
@@ -161,6 +170,9 @@ namespace ArtEva.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(300)
@@ -197,6 +209,9 @@ namespace ArtEva.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DeletedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
@@ -243,6 +258,9 @@ namespace ArtEva.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -274,6 +292,9 @@ namespace ArtEva.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DeletedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
@@ -308,6 +329,9 @@ namespace ArtEva.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DeletedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("Discount")
@@ -384,6 +408,9 @@ namespace ArtEva.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -436,6 +463,9 @@ namespace ArtEva.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -483,6 +513,9 @@ namespace ArtEva.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DeletedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
@@ -553,6 +586,9 @@ namespace ArtEva.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -593,6 +629,9 @@ namespace ArtEva.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DeletedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
@@ -637,6 +676,9 @@ namespace ArtEva.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DeletedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
@@ -726,8 +768,8 @@ namespace ArtEva.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "98d82d24-f00c-48d5-981a-d56968c54eb6",
-                            CreatedAt = new DateTime(2025, 12, 13, 16, 8, 6, 193, DateTimeKind.Utc).AddTicks(158),
+                            ConcurrencyStamp = "c1d2728e-6ec0-436c-9b9a-9272d0288a42",
+                            CreatedAt = new DateTime(2025, 12, 17, 11, 9, 17, 155, DateTimeKind.Utc).AddTicks(5444),
                             Description = "Administrator with full system access",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
@@ -735,8 +777,8 @@ namespace ArtEva.Migrations
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "04937574-7500-4521-ba83-697dad3863e3",
-                            CreatedAt = new DateTime(2025, 12, 13, 16, 8, 6, 193, DateTimeKind.Utc).AddTicks(170),
+                            ConcurrencyStamp = "2f740610-e5a3-4358-8612-94945ca39438",
+                            CreatedAt = new DateTime(2025, 12, 17, 11, 9, 17, 155, DateTimeKind.Utc).AddTicks(5455),
                             Description = "Customer who can browse and purchase artworks",
                             Name = "Buyer",
                             NormalizedName = "BUYER"
@@ -744,8 +786,8 @@ namespace ArtEva.Migrations
                         new
                         {
                             Id = 3,
-                            ConcurrencyStamp = "12edd86e-7e1f-498d-b8d6-2105bf686fe2",
-                            CreatedAt = new DateTime(2025, 12, 13, 16, 8, 6, 193, DateTimeKind.Utc).AddTicks(176),
+                            ConcurrencyStamp = "bd608ca4-8bd5-427e-aa48-49445cf68ba8",
+                            CreatedAt = new DateTime(2025, 12, 17, 11, 9, 17, 155, DateTimeKind.Utc).AddTicks(5472),
                             Description = "Artist who can create shop and sell artworks",
                             Name = "Seller",
                             NormalizedName = "SELLER"
@@ -766,6 +808,9 @@ namespace ArtEva.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DeletedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DeliveredAt")
@@ -827,6 +872,9 @@ namespace ArtEva.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -884,6 +932,9 @@ namespace ArtEva.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -918,6 +969,9 @@ namespace ArtEva.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DeletedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
@@ -1042,6 +1096,9 @@ namespace ArtEva.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DeletedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")

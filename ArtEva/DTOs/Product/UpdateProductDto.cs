@@ -4,10 +4,9 @@ namespace ArtEva.DTOs.Product
 {
     public class UpdateProductDto
     {
-
+        public int ShopId { get; set; }
         public int productId { get; set; }
         public string Title { get; set; }
-        public decimal Price { get; set; }
         public int CategoryId { get; set; }
         public int SubCategoryId { get; set; }
 

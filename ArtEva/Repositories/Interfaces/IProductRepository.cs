@@ -1,4 +1,5 @@
 using ArteEva.Models;
+using ArtEva.Application.Products.Specifications;
 using System.Linq.Expressions;
 
 namespace ArteEva.Repositories
@@ -6,11 +7,11 @@ namespace ArteEva.Repositories
     public interface IProductRepository : IRepository<Product>
     {
         public Task<Product> GetProductWithImagesAsync(int productId);
-        Task<IEnumerable<Product>> GetPagedProductsWithImagesAsync(
-        Expression<Func<Product, bool>> predicate,
+        Task<IReadOnlyList<Product>> GetPagedAsync(
+        ISpecification<Product> specification,
         int pageNumber,
         int pageSize);
 
-        Task<int> CountAsync(Expression<Func<Product, bool>> predicate);
+        Task<int> CountAsync(ISpecification<Product> specification);
     }
 }

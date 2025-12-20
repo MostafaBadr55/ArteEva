@@ -25,7 +25,7 @@ namespace ArtEva.Controllers.Filters.Middlewares
             {
                 await WriteError(context, StatusCodes.Status403Forbidden, ex.Message);
             }
-            catch (ValidationException ex)
+            catch (NotValidException ex)
             {
                 await WriteError(context, StatusCodes.Status400BadRequest, ex.Message);
             }

@@ -4,7 +4,11 @@ using ArteEva.Repositories;
 using ArtEva.Controllers.Filters.Middlewares;
 using ArtEva.Data.Data_Seeder;
 using ArtEva.Services;
+<<<<<<< HEAD
 using ArtEva.Services.Implementations;
+=======
+using ArtEva.Services.Implementation;
+>>>>>>> 7ef7d5956491c35f60b9324084ee1e37d86f8eee
 using ArtEva.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -12,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace ArtEva
 {
@@ -22,9 +27,17 @@ namespace ArtEva
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            builder.Services.AddControllers().ConfigureApiBehaviorOptions(
-                options =>
-                    options.SuppressModelStateInvalidFilter = true);
+            builder.Services.AddControllers()
+                    .AddJsonOptions(options =>
+                        {
+                            options.JsonSerializerOptions.Converters.Add(
+                            new JsonStringEnumConverter()
+                                );
+                        })
+                          .ConfigureApiBehaviorOptions(options =>
+                        {
+                    options.SuppressModelStateInvalidFilter = true;
+                        });
             //inject Dbcontext
             builder.Services.AddDbContext<ApplicationDbContext>(
                 options =>
@@ -111,6 +124,8 @@ namespace ArtEva
             builder.Services.AddScoped<IAdminService, AdminService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IFileService, FileService>();
+            builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<IShopProductService, ShopProductService>();
 
 
             // Register repositories
@@ -135,9 +150,10 @@ namespace ArtEva
             builder.Services.AddScoped<IDisputeRepository, DisputeRepository>();
             builder.Services.AddScoped<IShopFollowerRepository, ShopFollowerRepository>();
             builder.Services.AddScoped<ISubCategoryService, SubCategoryService>();
+  
             builder.Services.AddScoped<IProductService, ProductService>();
 
-
+ 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             

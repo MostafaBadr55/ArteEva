@@ -1,34 +1,97 @@
 using ArteEva.Data;
 using ArteEva.Models;
-using ArtEva.DTOs.Shop;
 using ArteEva.Repositories;
-using Microsoft.EntityFrameworkCore;
+using ArtEva.Application.Shops.Quiries;
+using ArtEva.Application.Shops.Specifications;
+using ArtEva.DTOs.Pagination.Product;
+using ArtEva.DTOs.Shop;
+using ArtEva.DTOs.Shop.Products;
 using ArtEva.Models.Enums;
 
 using ArtEva.Services.Implementation;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace ArtEva.Services.Implementations
 {
     public class ShopService : IShopService
     {
         private readonly IShopRepository _shopRepository;
-        private readonly ApplicationDbContext _context;
 
-        public ShopService(IShopRepository shopRepository, ApplicationDbContext context)
+        public ShopService(IShopRepository shopRepository, IConfiguration config)
         {
             _shopRepository = shopRepository;
-            _context = context;
+             
+        }
+        public async Task<ShopPagedResult<ExistShopDto>> GetShopsAsync(
+                ShopQueryCriteria criteria,
+                int pageNumber = 1,
+                int pageSize = 20)
+        {
+            if (pageNumber <= 0) pageNumber = 1;
+            if (pageSize <= 0) pageSize = 20;
+            const int MAX_PAGE_SIZE = 100;
+            if (pageSize > MAX_PAGE_SIZE) pageSize = MAX_PAGE_SIZE;
+
+            var specification = new ShopQuerySpecification(criteria);
+
+            var totalCount = await _shopRepository.CountAsync(specification);
+
+            var shops = await _shopRepository.GetPagedAsync(
+                specification,
+                pageNumber,
+                pageSize);
+
+            var items = shops.Select(s => new ExistShopDto
+            {
+                OwnerUserId = s.OwnerUserId,
+                Name = s.Name,
+                ImageUrl = $"uploads/shops/{s.ImageUrl}",
+                Description = s.Description,
+                Status = s.Status,
+                RatingAverage = s.RatingAverage
+            }).ToList();
+
+            return new ShopPagedResult<ExistShopDto>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
+
+
+        public async Task<CreatedShopDto> GetShopByOwnerIdAsync(int userId)
+        {
+            CreatedShopDto? shop =
+              await _shopRepository.GetShopByOwnerId(userId)
+             //.Where(s=>s.Status==ShopStatus.Active || s.Status == ShopStatus.Inactive)   
+             .Select(s => new CreatedShopDto
+             {
+                 Id = s.Id,
+                 OwnerUserName = s.Owner.UserName,
+                 Name = s.Name,
+                 ImageUrl = $"uploads/shops/{s.ImageUrl}",
+                 Description = s.Description,
+                 Status = s.Status,
+                 RatingAverage = s.RatingAverage,
+             }).FirstOrDefaultAsync();
+             
+            return shop;
         }
 
         public async Task CreateShopAsync(int userId, CreateShopDto dto)
         {
-            // Check if user already has a shop
-            var existingShop = await _context.Shops
-                .FirstOrDefaultAsync(s => s.OwnerUserId == userId);
+            var existingShop = await _shopRepository
+                .GetShopByOwnerId(userId)
+                .FirstOrDefaultAsync();
 
             if (existingShop != null)
             {
-                throw new Exception("User already has a shop");
+                throw new NotValidException("User already has a shop");
             }
 
             var shop = new Shop
@@ -43,66 +106,41 @@ namespace ArtEva.Services.Implementations
             };
 
             await _shopRepository.AddAsync(shop);
-            await _context.SaveChangesAsync();
-             
+            await _shopRepository.SaveChanges();
         }
 
-        public async Task<CreatedShopDto> GetShopByOwnerIdAsync(int userId)
-        {
-            var shop = await _context.Shops
-             .Where(s => s.OwnerUserId == userId)
-             .Select(s => new CreatedShopDto
-             {
-                    Id = s.Id,
-                 OwnerUserName = s.Owner.UserName,
-                 Name = s.Name,
-                 ImageUrl = s.ImageUrl,
-                 Description = s.Description,
-                 Status = s.Status,
-                 RatingAverage = s.RatingAverage,
-  
-
-             }).FirstOrDefaultAsync();
 
 
-            if (shop == null)
-            {
-                return null;
-            }
-
-            return shop;
-        }
-
-      
         public async Task<ExistShopDto> GetShopByIdAsync(int shopId)
         {
-            var shop = await _shopRepository.GetByIdAsync(shopId);
+            var shop = await LoadShopOrThrowAsync(shopId);
 
-            if (shop == null)
+            if (shop.Status != ShopStatus.Active && shop.Status != ShopStatus.Inactive)
             {
-                throw new Exception("Shop not found");
+                throw new ForbiddenException("Shop is not available");
             }
+
+            shop.ImageUrl = $"uploads/shops/{shop.ImageUrl}";
 
             return MapToDto2(shop);
+
         }
 
-        public async Task<IEnumerable<CreatedShopDto>> GetPendingShopsAsync()
+        public async Task<IEnumerable<PendingShopDto>> GetPendingShopsAsync()
         {
-            var shops = await _context.Shops
-                .Where(s => s.Status == ShopStatus.Pending)
+            var shops = await _shopRepository.GetPendingShops()
                 .ToListAsync();
+            foreach (var shop in shops)
+            {
+                shop.ImageUrl = $"uploads/shops/{shop.ImageUrl}";
+            }
 
-            return shops.Select(MapToDto);
+            return shops.Select(MapToDtoPending);
         }
 
-        public async Task<CreatedShopDto> ApproveShopAsync(int shopId)
+        public async Task<ApproveShopDto> ApproveShopAsync(int shopId)
         {
-            var shop = await _shopRepository.GetByIdAsync(shopId);
-
-            if (shop == null)
-            {
-                throw new Exception("Shop not found");
-            }
+            var shop =await LoadShopOrThrowAsync(shopId);
 
             if (shop.Status != ShopStatus.Pending)
             {
@@ -114,19 +152,14 @@ namespace ArtEva.Services.Implementations
             shop.UpdatedAt = DateTime.UtcNow;
 
            await _shopRepository.UpdateAsync(shop);
-            await _context.SaveChangesAsync();
+            await _shopRepository.SaveChanges();
 
-            return MapToDto(shop);
+            return MapToDtoApprove(shop);
         }
 
         public async Task<RejectedShopDto> RejectShopAsync(int shopId, RejectShopDto dto)
         {
-            var shop = await _shopRepository.GetByIdAsync(shopId);
-
-            if (shop == null)
-            {
-                throw new Exception("Shop not found");
-            }
+            var shop = await LoadShopOrThrowAsync(shopId);
 
             if (shop.Status != ShopStatus.Pending)
             {
@@ -138,7 +171,7 @@ namespace ArtEva.Services.Implementations
             shop.UpdatedAt = DateTime.UtcNow;
 
            await _shopRepository.UpdateAsync(shop);
-            await _context.SaveChangesAsync();
+            await _shopRepository.SaveChanges();
 
             return MapToDto3(shop);
         }
@@ -150,29 +183,136 @@ namespace ArtEva.Services.Implementations
             else
                 return true;
         }
- 
-        public async Task UpdateShopAsync(int UserID, UpdateShopDto updateShopDto) { 
 
-             
-            var shop = await _shopRepository.GetByIDWithTrackingAsync(updateShopDto.ShopId);
-            if (shop == null)
-            {
-                throw new NotFoundException("Shop not found");
-            }
+        #region MyRegion Update Shop
 
-            if(UserID != shop.OwnerUserId)
-                throw new UnauthorizedAccessException("Not allowed to update this shop");
+        public async Task UpdateShopInfoAsync(int userId,UpdateShopDto dto)
+        {
+            var shop = await LoadShopForUpdateAsync(dto.ShopId, userId);
 
-            shop.Name = updateShopDto.ShopName;
-            shop.ImageUrl = updateShopDto.ImageUrl;
-            shop.Description = updateShopDto.Description;
+            EnsureShopCanBeUpdated(shop);
+
+            shop.Name = dto.ShopName;
+            shop.ImageUrl = dto.ImageUrl;
+            shop.Description = dto.Description;
+
+            /// Rule
+            shop.Status = ShopStatus.Pending;
+
             shop.UpdatedAt = DateTime.UtcNow;
-              
-            await _context.SaveChangesAsync();
-             
+
+            await _shopRepository.SaveChanges();
         }
 
 
+        public async Task UpdateShopStatusBySellerAsync(int userId, int shopId, ShopStatus newStatus)
+        {
+            var shop = await _shopRepository.GetByIDWithTrackingAsync(shopId);
+
+            if (shop == null)
+                throw new NotFoundException("Shop not found");
+
+            // Ownership check
+            if (shop.OwnerUserId != userId)
+                throw new UnauthorizedAccessException("You are not the owner of this shop");
+
+            // Status change allowed only Active <-> Inactive
+            if (!((shop.Status == ShopStatus.Active && newStatus == ShopStatus.Inactive) ||
+                  (shop.Status == ShopStatus.Inactive && newStatus == ShopStatus.Active)))
+            {
+                throw new NotValidException(
+                    $"Sellers can only toggle status between Active and Inactive. Current status: {shop.Status}"
+                );
+            }
+
+            shop.Status = newStatus;
+            shop.UpdatedAt = DateTime.UtcNow;
+
+            await _shopRepository.SaveChanges();
+        }
+
+
+
+        #endregion
+
+        #region MyRegion
+
+        public async Task<Shop> EnsureShopOwnershipAsync(int userId, int shopId)
+        {
+            var shop = await LoadShopOrThrowAsync(shopId);
+
+            if (shop.OwnerUserId != userId)
+                throw new NotValidException("You are not the owner of this shop.");
+
+            return shop;
+        }
+      
+        public async Task EnsureShopAllowsProductManagementAsync(int shopId)
+        {
+            var shop = await LoadShopOrThrowAsync(shopId);
+
+            EnsureShopAllowsProductManagement(shop);
+        }
+        public async Task<Shop> EnsureUserCanManageShopProductsAsync(int userId,int shopId)
+        {
+            var shop = await LoadShopOrThrowAsync(shopId);
+
+            if (shop.OwnerUserId != userId)
+                throw new NotValidException("You are not the owner of this shop.");
+
+            EnsureShopAllowsProductManagement(shop);
+
+            return shop;
+        }
+         
+
+        #endregion
+
+        #region Private Functions
+        private async Task<Shop> LoadShopOrThrowAsync(int shopId)
+        {
+            var shop = await _shopRepository.GetByIdAsync(shopId);
+
+            if (shop == null)
+                throw new NotValidException("Shop not found.");
+
+            return shop;
+        }
+        private void EnsureShopAllowsProductManagement(Shop shop)
+        {
+            if (shop.Status != ShopStatus.Active &&
+                shop.Status != ShopStatus.Inactive)
+                throw new NotValidException(
+                    $"You cannot manage products while shop status is '{shop.Status}'."
+                );
+        }
+        private void EnsureShopCanBeUpdated(Shop shop)
+        {
+            if (shop.Status != ShopStatus.Active &&
+                shop.Status != ShopStatus.Inactive)
+                throw new NotValidException(
+                    $"Shop cannot be updated while status is '{shop.Status}'."
+                );
+        }
+        private async Task<Shop> LoadShopForUpdateAsync(int shopId, int userId)
+        {
+            var shop = await _shopRepository.GetByIDWithTrackingAsync(shopId);
+
+            if (shop == null)
+                throw new NotFoundException("Shop not found");
+
+            if (shop.OwnerUserId != userId)
+                throw new UnauthorizedAccessException("Not allowed to update this shop");
+
+            return shop;
+        }
+
+
+<<<<<<< HEAD
+=======
+        #endregion
+
+>>>>>>> 7ef7d5956491c35f60b9324084ee1e37d86f8eee
         #region mapping
         private CreatedShopDto MapToDto(ArteEva.Models.Shop shop)
         {
@@ -217,8 +357,34 @@ namespace ArtEva.Services.Implementations
             };
         }
 
+        private PendingShopDto MapToDtoPending(Shop shop)
+        {
+            return new PendingShopDto
+            {
+                OwnerUserId = shop.Id,
+                Id=shop.Id,
+                Name = shop.Name,
+                ImageUrl = shop.ImageUrl,
+                Description = shop.Description,
+                Status = shop.Status,
+                RatingAverage = shop.RatingAverage
+            };
+        }   
+        private ApproveShopDto MapToDtoApprove(Shop shop)
+        {
+            return new ApproveShopDto
+            {
+                OwnerUserId = shop.OwnerUserId,
+                Name = shop.Name,
+                ImageUrl = shop.ImageUrl,
+                Description = shop.Description,
+                Status = shop.Status,
+                RatingAverage = shop.RatingAverage
+            };
+        }
 
-     
         #endregion
+  
+    
     }
 }

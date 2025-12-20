@@ -106,6 +106,8 @@ namespace ArteEva.Data
             // Product configurations
             modelBuilder.Entity<Product>(entity =>
             {
+                entity.HasQueryFilter(p => !p.IsDeleted);
+
                 entity.HasOne(p => p.Shop)
                     .WithMany(s => s.Products)
                     .HasForeignKey(p => p.ShopId);

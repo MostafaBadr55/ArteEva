@@ -48,8 +48,8 @@ namespace ArtEva.Services.Implementations
             var baseUrl = _config["UploadSettings:BaseUrl"];
             /// Example:
             /// http://localhost:5000/uploads/Shops/uuid.jpg
-            /// 
-            return $"{baseUrl}/uploads/{folderName}/{newFileName}";
+            /// {baseUrl}/uploads/{folderName}/
+            return newFileName;
         }
     }
 }

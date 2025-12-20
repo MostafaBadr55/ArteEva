@@ -1,5 +1,6 @@
 using ArteEva.Data;
 using ArteEva.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ArteEva.Repositories
 {
@@ -7,6 +8,14 @@ namespace ArteEva.Repositories
     {
         public CartRepository(ApplicationDbContext context) : base(context)
         {
+        }
+        public async Task<Cart?> GetCartWithItemsAsync(int userId)
+        {
+            return await _context.Carts
+                .Include(c => c.CartItems)
+                .FirstOrDefaultAsync(c =>
+                    c.UserId == userId &&
+                    !c.IsDeleted);
         }
     }
 }

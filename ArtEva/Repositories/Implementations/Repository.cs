@@ -25,20 +25,20 @@ namespace ArteEva.Repositories
             var res= await _dbSet.AsTracking().FirstOrDefaultAsync(s=>s.Id==id && !s.IsDeleted);
             return res;
         }
-        public async Task<T?> GetByIdAsync(int id)
+        public async Task<T> GetByIdAsync(int id)
         {
-            var res = await _dbSet.FirstOrDefaultAsync(s => s.Id == id && !s.IsDeleted);
+            var res = await _dbSet.FirstOrDefaultAsync(s=>s.Id == id && !s.IsDeleted);
             return res;
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public   IQueryable<T> GetAllAsync()
         {
-            return await _dbSet.Where(s=> !s.IsDeleted).ToListAsync();
+            return _dbSet.Where(s => !s.IsDeleted);
         }
 
-        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
+        public  IQueryable<T> FindAsync(Expression<Func<T, bool>> predicate)
         {
-            return await _dbSet.Where(predicate).ToListAsync();
+            return  _dbSet.Where(predicate);
         }
 
         public async Task AddAsync(T entity)
@@ -77,6 +77,7 @@ namespace ArteEva.Repositories
         {
             return _context.Set<T>();
         }
+
         public async Task SaveChanges()
         {
             await _context.SaveChangesAsync();

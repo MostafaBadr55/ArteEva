@@ -11,6 +11,7 @@ namespace ArtEva.Services.Interfaces
         Task<SubCategoryDTO> CreateSubCategoryAsync(CreateSubCategory req);
         Task<SubCategoryDTO> UpdateSubCategoryAsync(UpdateSubcategory req);
         Task DeleteSubCategoryAsync(int id);
+        Task<bool> ValidateSubCategoryAsync(int subCategoryId, int categoryId);
 
     }
 }

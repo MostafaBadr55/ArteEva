@@ -1,4 +1,5 @@
 using ArteEva.Models;
+using ArtEva.DTOs.Shop.Products;
 using ArtEva.Models.Enums;
 using System.Collections.ObjectModel;
 
@@ -14,5 +15,8 @@ namespace ArtEva.DTOs.Shop
         public ShopStatus Status { get; set; }
         public decimal RatingAverage { get; set; }
 
-     }
+        public ICollection<ActiveProductDto> activeProductDtos { get; set; }
+        public ICollection<InActiveProductDto> inActiveProductDtos { get; set; }
+
+    }
 }

@@ -1,5 +1,6 @@
 using ArteEva.Data;
 using ArteEva.Models;
+using ArtEva.Application.Products.Specifications;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -19,26 +20,23 @@ namespace ArteEva.Repositories
             return product;
         }
 
-        public async Task<IEnumerable<Product>> GetPagedProductsWithImagesAsync(
-           Expression<Func<Product, bool>> predicate,
-           int pageNumber,
-           int pageSize)
+        public async Task<IReadOnlyList<Product>> GetPagedAsync(
+        ISpecification<Product> specification,
+        int pageNumber,
+        int pageSize)
         {
-            return await _context.Set<Product>()
-                .Where(predicate)
-                .Where(p => !p.IsDeleted)
+            return await _context.Products
+                .Where(specification.Criteria)
                 .Include(p => p.ProductImages)
-                .OrderByDescending(p => p.CreatedAt) // sensible default ordering
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
         }
 
-        public async Task<int> CountAsync(Expression<Func<Product, bool>> predicate)
+        public async Task<int> CountAsync(ISpecification<Product> specification)
         {
-            return await _context.Set<Product>()
-                .Where(predicate)
-                .Where(p => !p.IsDeleted)
+            return await _context.Products
+                .Where(specification.Criteria)
                 .CountAsync();
         }
     }

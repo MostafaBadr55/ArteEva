@@ -1,5 +1,14 @@
+<<<<<<< HEAD
+=======
+using ArteEva.Models;
+using ArtEva.Application.Products.Quiries;
+using ArtEva.Application.Shops.Quiries;
+using ArtEva.DTOs.Admin;
+>>>>>>> 7ef7d5956491c35f60b9324084ee1e37d86f8eee
 using ArtEva.DTOs.Product;
 using ArtEva.DTOs.Shop;
+using ArtEva.Extensions;
+using ArtEva.Models.Enums;
 using ArtEva.Services;
 using ArtEva.ViewModels.Product;
 using Microsoft.AspNetCore.Authorization;
@@ -25,10 +34,36 @@ namespace ArtEva.Controllers
             _productService = productService;
         }
 
+        [HttpGet("GetShops")]
+  
+        public async Task<IActionResult> GetShops(
+                [FromQuery] ShopQueryCriteria criteria,
+                [FromQuery] int pageNumber = 1,
+                [FromQuery] int pageSize = 20)
+        {
+            var result = await _shopService.GetShopsAsync(
+                criteria,
+                pageNumber,
+                pageSize);
+
+            foreach (var shop in result.Items)
+            {
+                shop.ImageUrl = Request.BuildPublicUrl(shop.ImageUrl);
+            }
+
+            return Ok(result);
+        }
+
+
         [HttpGet("shops/pending")]
         public async Task<IActionResult> GetPendingShops()
         {
             var shops = await _shopService.GetPendingShopsAsync();
+            foreach (var shop in shops)
+            {
+                if (shop.ImageUrl == null) continue;
+                shop.ImageUrl = Request.BuildPublicUrl(shop.ImageUrl);
+            }
             return Ok(shops);
         }
 
@@ -56,17 +91,15 @@ namespace ArtEva.Controllers
             return Ok(result);
         }
 
-        [HttpGet("products/pending")]
-        public async Task<IActionResult> GetPending([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        [HttpGet("products")]
+        public async Task<IActionResult> GetProducts
+            ([FromQuery] ProductQueryCriteria criteria,int pageNumber = 1,int pageSize = 20)
         {
-            var result = await _productService.GetAdminPendingProductsAsync(page, pageSize);
-            return Ok(result);
-        }
+            var result = await _productService.GetProductsAsync(
+                criteria,
+                pageNumber,
+                pageSize);
 
-        [HttpGet("products/approved")]
-        public async Task<IActionResult> GetApproved([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
-        {
-            var result = await _productService.GetAdminApprovedProductsAsync(page, pageSize);
             return Ok(result);
         }
 

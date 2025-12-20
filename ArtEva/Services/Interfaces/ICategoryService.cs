@@ -9,5 +9,6 @@ namespace ArtEva.Services.Interfaces
         Task<CategoryDto> CreateCategoryAsync(CreateCategoryRequestDto request);
         Task<CategoryDto> UpdateCategoryAsync(UpdateCategoryRequestDto request);
         Task DeleteCategoryAsync(int id);
+        Task<bool> ValidateCategoryExistsAsync(int categoryId);
     }
 }
