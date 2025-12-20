@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using ArtEva.DTOs.Product;
+using Microsoft.AspNetCore.Http;
 namespace ArtEva.Extensions
 {
    
@@ -13,7 +14,7 @@ namespace ArtEva.Extensions
             return $"{baseUrl}/{relativePath.TrimStart('/')}";
         }
      
-        public static void BuildProductImagesUrls<T>(this HttpRequest request,IEnumerable<T>? products)where T : IProductWithImagesDto
+        public static void BuildProductImagesUrls(this HttpRequest request,IEnumerable<ProductWithImagesDto>? products)
         {
             if (products == null) return;
             foreach (var product in products)

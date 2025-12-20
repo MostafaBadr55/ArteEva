@@ -1,14 +1,12 @@
 ﻿using ArtEva.DTOs.Pagination.Product;
+using ArtEva.DTOs.Product;
 using ArtEva.Extensions;
 using ArtEva.Models.Enums;
 
 namespace ArtEva.DTOs.Shop.Products
 {
-    public class InActiveProductDto: IProductWithImagesDto
+    public class InActiveProductDto: ProductWithImagesDto
     {
-        public string Title { get; set; }
-        public decimal Price { get; set; }
-        public ProductStatus Status { get; set; }
-        public List<ProductImageDto> Images { get; set; } = new();
+        public ProductStatus Status { get; set; } = ProductStatus.InActive;
     }
 }
