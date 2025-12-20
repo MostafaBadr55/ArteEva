@@ -47,7 +47,7 @@ namespace ArtEva.Services.Implementation
               await _shopService.GetShopByOwnerIdAsync(userId);
 
             if (shop == null)
-                throw new NotValidException("You don't have an active shop yet.");
+                throw new NotFoundException("No shop found for this user");
 
             var activeCriteria = new ShopProductQueryCriteria
             {

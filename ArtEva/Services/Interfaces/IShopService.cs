@@ -7,7 +7,9 @@ namespace ArtEva.Services
 {
     public interface IShopService
     {
-        public   Task UpdateShopInfoAsync(int userId, UpdateShopDto dto);
+        Task<ShopPagedResult<ExistShopDto>> GetShopsByStatusAsync(ShopStatus? status, int pageNumber = 1, int pageSize = 10);
+         
+        public Task UpdateShopInfoAsync(int userId, UpdateShopDto dto);
         public Task UpdateShopStatusBySellerAsync(int userId, int shopId, ShopStatus newStatus);
 
         public Task<CreatedShopDto> GetShopByOwnerIdAsync(int userId);
