@@ -1,14 +1,16 @@
 using ArteEva.Data;
 using ArteEva.Models;
-using ArtEva.DTOs.Shop;
 using ArteEva.Repositories;
-using Microsoft.EntityFrameworkCore;
+using ArtEva.Application.Shops.Quiries;
+using ArtEva.Application.Shops.Specifications;
+using ArtEva.DTOs.Pagination.Product;
+using ArtEva.DTOs.Shop;
+using ArtEva.DTOs.Shop.Products;
 using ArtEva.Models.Enums;
 using ArtEva.Services.Implementation;
-using System.Data;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using ArtEva.DTOs.Pagination.Product;
-using ArtEva.DTOs.Shop.Products;
+using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace ArtEva.Services
 {
@@ -16,43 +18,39 @@ namespace ArtEva.Services
     {
         private readonly IShopRepository _shopRepository;
 
-        public ShopService(IShopRepository shopRepository   ,IConfiguration config)
+        public ShopService(IShopRepository shopRepository, IConfiguration config)
         {
             _shopRepository = shopRepository;
              
         }
-        public async Task<ShopPagedResult<ExistShopDto>> GetShopsByStatusAsync(ShopStatus? status = null, int pageNumber = 1, int pageSize = 10)
+        public async Task<ShopPagedResult<ExistShopDto>> GetShopsAsync(
+                ShopQueryCriteria criteria,
+                int pageNumber = 1,
+                int pageSize = 20)
         {
             if (pageNumber <= 0) pageNumber = 1;
-            if (pageSize <= 0) pageSize = 10;
+            if (pageSize <= 0) pageSize = 20;
             const int MAX_PAGE_SIZE = 100;
             if (pageSize > MAX_PAGE_SIZE) pageSize = MAX_PAGE_SIZE;
 
-             var query = _shopRepository.GetAllAsync();  
+            var specification = new ShopQuerySpecification(criteria);
 
-            if (status.HasValue)
+            var totalCount = await _shopRepository.CountAsync(specification);
+
+            var shops = await _shopRepository.GetPagedAsync(
+                specification,
+                pageNumber,
+                pageSize);
+
+            var items = shops.Select(s => new ExistShopDto
             {
-                query = query.Where(s => s.Status == status.Value);
-            }
-
-             query = query.OrderByDescending(s => s.UpdatedAt);
-
-            var totalCount = await query.CountAsync();
-
-            var items = await query
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .Select(s => new ExistShopDto
-                {
-                    
-                    OwnerUserId = s.Id,
-                     Name = s.Name,
-                    ImageUrl = $"uploads/shops/{s.ImageUrl}",
-                    Description = s.Description,
-                    Status = s.Status,
-                    RatingAverage = s.RatingAverage,
-                })
-                .ToListAsync();
+                OwnerUserId = s.OwnerUserId,
+                Name = s.Name,
+                ImageUrl = $"uploads/shops/{s.ImageUrl}",
+                Description = s.Description,
+                Status = s.Status,
+                RatingAverage = s.RatingAverage
+            }).ToList();
 
             return new ShopPagedResult<ExistShopDto>
             {
@@ -62,6 +60,8 @@ namespace ArtEva.Services
                 PageSize = pageSize
             };
         }
+
+
 
         public async Task<CreatedShopDto> GetShopByOwnerIdAsync(int userId)
         {

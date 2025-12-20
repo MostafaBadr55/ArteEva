@@ -1,5 +1,6 @@
 using ArteEva.Models;
 using ArtEva.Application.Products.Quiries;
+using ArtEva.Application.Shops.Quiries;
 using ArtEva.DTOs.Admin;
 using ArtEva.DTOs.Product;
 using ArtEva.DTOs.Shop;
@@ -29,9 +30,16 @@ namespace ArtEva.Controllers
         }
 
         [HttpGet("GetShops")]
-        public async Task<IActionResult> GetShops([FromQuery] ShopStatus? status, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+  
+        public async Task<IActionResult> GetShops(
+                [FromQuery] ShopQueryCriteria criteria,
+                [FromQuery] int pageNumber = 1,
+                [FromQuery] int pageSize = 20)
         {
-            var result = await _shopService.GetShopsByStatusAsync(status, pageNumber, pageSize);
+            var result = await _shopService.GetShopsAsync(
+                criteria,
+                pageNumber,
+                pageSize);
 
             foreach (var shop in result.Items)
             {
@@ -40,6 +48,7 @@ namespace ArtEva.Controllers
 
             return Ok(result);
         }
+
 
         [HttpGet("shops/pending")]
         public async Task<IActionResult> GetPendingShops()
