@@ -2,6 +2,7 @@
 using ArteEva.Models;
 using ArteEva.Repositories;
 using ArtEva.Application.Products.Quiries;
+using ArtEva.Application.ShopProduct.Quiries;
 using ArtEva.DTOs.Pagination;
 using ArtEva.DTOs.Pagination.Product;
 using ArtEva.DTOs.Product;
@@ -48,29 +49,35 @@ namespace ArtEva.Services.Implementation
             if (shop == null)
                 throw new NotValidException("You don't have an active shop yet.");
 
-
-            var res1 = await GetShopActiveProductsAsync( userId, shop.Id, pageNumber, pageSize);
-            var res2 = await GetShopInactiveProductsAsync(userId,shop.Id, pageNumber, pageSize);
-
-            var ActiveProductDtos = res1.Items.Select(s => new ActiveProductDto()
+            var activeCriteria = new ShopProductQueryCriteria
             {
-                Title = s.Title,
-                Images = s.Images,
-                Price = s.Price,
-                Status = s.Status,
+                Status = ProductStatus.Active
+            };
 
+            var inactiveCriteria = new ShopProductQueryCriteria
+            {
+                Status = ProductStatus.InActive
+            };
+
+            var activeProducts = await GetShopProductsAsync(userId,shop.Id,activeCriteria,pageNumber,pageSize);
+
+            var inactiveProducts = await GetShopProductsAsync(userId,shop.Id,inactiveCriteria,pageNumber,pageSize);
+
+            shop.activeProductDtos = activeProducts.Items.Select(p => new ActiveProductDto
+            {
+                Title = p.Title,
+                Images = p.Images,
+                Price = p.Price,
+                Status = p.Status
+            }).ToList();
+            shop.inActiveProductDtos = inactiveProducts.Items.Select(p => new InActiveProductDto
+            {
+                Title = p.Title,
+                Images = p.Images,
+                Price = p.Price,
+                Status = p.Status
             }).ToList();
 
-            var InactiveProductDtos = res2.Items.Select(s => new InActiveProductDto()
-            {
-                Title = s.Title,
-                Images = s.Images,
-                Price = s.Price,
-                Status = s.Status,
-
-            }).ToList();
-            shop.inActiveProductDtos = InactiveProductDtos;
-            shop.activeProductDtos = ActiveProductDtos;
             if (shop == null)
             {
                 return null;
@@ -94,47 +101,20 @@ namespace ArtEva.Services.Implementation
 
         //Get Shop products paginated
         //shop owner: All products for this shop
-        public async Task<PagedResult<ProductListItemDto>> GetAllShopProductsAsync
-            (int userId, int shopId, int pageNumber, int pageSize)
+        public async Task<PagedResult<ProductListItemDto>> GetShopProductsAsync(
+            int userId,int shopId,ShopProductQueryCriteria query,int pageNumber,int pageSize)
         {
             await _shopService.EnsureShopOwnershipAsync(userId, shopId);
 
             var criteria = new ProductQueryCriteria
             {
                 ShopId = shopId,
+                Status = query.Status,
+                ApprovalStatus = query.ApprovalStatus,
+                IsPublished = query.IsPublished
             };
 
             return await _productService.GetProductsAsync(criteria, pageNumber, pageSize);
-        }
-
-        // shop owner: active products for this shop
-        public async Task<PagedResult<ProductListItemDto>> GetShopActiveProductsAsync
-            (int userId,int shopId,int pageNumber,int pageSize)
-        {
-            await _shopService.EnsureShopOwnershipAsync(userId, shopId);
-
-            var criteria = new ProductQueryCriteria
-            {
-                ShopId = shopId,
-                Status = ProductStatus.Active
-            };
-
-            return await _productService.GetProductsAsync(criteria,pageNumber,pageSize);
-        }
-
-        // shop owner: inactive products for this shop
-        public async Task<PagedResult<ProductListItemDto>> GetShopInactiveProductsAsync
-            (int userId,int shopId,int pageNumber,int pageSize)
-        {
-            await _shopService.EnsureShopOwnershipAsync(userId, shopId);
-
-            var criteria = new ProductQueryCriteria
-            {
-                ShopId = shopId,
-                Status = ProductStatus.InActive
-            };
-
-            return await _productService.GetProductsAsync(criteria,pageNumber,pageSize);
         }
 
         #region Update Product

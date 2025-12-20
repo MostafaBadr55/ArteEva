@@ -57,74 +57,15 @@ namespace ArtEva.Controllers
             return Ok(result);
         }
 
-        [HttpGet("products/pending")]
-        public async Task<IActionResult> GetPendingProducts(int pageNumber = 1,int pageSize = 20)
+        [HttpGet("products")]
+        public async Task<IActionResult> GetProducts
+            ([FromQuery] ProductQueryCriteria criteria,int pageNumber = 1,int pageSize = 20)
         {
             var result = await _productService.GetProductsAsync(
-                new ProductQueryCriteria
-                {
-                    IsPublished = false
-                },
+                criteria,
                 pageNumber,
                 pageSize);
 
-            return Ok(result);
-        }
-
-        [HttpGet("products/approved")]
-        public async Task<IActionResult> GetApprovedProducts(int pageNumber = 1,int pageSize = 20)
-        {
-            var result = await _productService.GetProductsAsync(
-                new ProductQueryCriteria
-                {
-                    IsPublished = true,
-                    ApprovalStatus = ProductApprovalStatus.Approved
-                },
-                pageNumber,
-                pageSize);
-
-            return Ok(result);
-        }
-        
-        [HttpGet("products/rejected")]
-        public async Task<IActionResult> GetRejectedProducts(int pageNumber = 1,int pageSize = 20)
-        {
-            var result = await _productService.GetProductsAsync(
-                new ProductQueryCriteria
-                {
-                    ApprovalStatus = ProductApprovalStatus.Rejected
-                },
-                pageNumber,
-                pageSize);
-
-            return Ok(result);
-        }
-
-        [HttpGet("products/Active")]
-        public async Task<IActionResult> GetActiveProducts(int pageNumber = 1, int pageSize = 20)
-        {
-            var result = await _productService.GetProductsAsync(
-                new ProductQueryCriteria
-                {
-                    Status = ProductStatus.Active
-                },
-                pageNumber,
-                pageSize
-                );
-            return Ok(result);
-        }
-
-        [HttpGet("products/InActive")]
-        public async Task<IActionResult> GetInActiveProducts(int pageNumber = 1, int pageSize = 20)
-        {
-            var result = await _productService.GetProductsAsync(
-                new ProductQueryCriteria
-                {
-                    Status = ProductStatus.InActive
-                },
-                pageNumber,
-                pageSize
-                );
             return Ok(result);
         }
 

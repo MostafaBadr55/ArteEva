@@ -1,4 +1,6 @@
-﻿using ArtEva.DTOs.Product;
+﻿using ArtEva.Application.Products.Quiries;
+using ArtEva.Application.ShopProduct.Quiries;
+using ArtEva.DTOs.Product;
 using ArtEva.Services;
 using ArtEva.Services.Interfaces;
 using ArtEva.ViewModels.Product;
@@ -31,31 +33,20 @@ namespace ArtEva.Controllers
 
             return Ok(product);
         }
-        [HttpGet("Active")]
-        public async Task<IActionResult> GetActiveProducts(int shopId, int pageNumber, int pageSize)
+        [HttpGet]
+        public async Task<IActionResult> GetShopProducts
+            (int shopId,[FromQuery]  ShopProductQueryCriteria query,int pageNumber = 1,int pageSize = 20)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var activeProducts = await _shopProductService.GetShopActiveProductsAsync
-                                            (userId, shopId, pageNumber, pageSize);
-            return Ok(activeProducts);
-        }
 
-        [HttpGet("InActive")]
-        public async Task<IActionResult> GetInActiveProducts(int shopId, int pageNumber, int pageSize)
-        {
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var inActiveProducts = await _shopProductService.GetShopInactiveProductsAsync
-                                            (userId, shopId, pageNumber, pageSize);
-            return Ok(inActiveProducts);
-        }
+            var result = await _shopProductService.GetShopProductsAsync(
+                userId,
+                shopId,
+                query,
+                pageNumber,
+                pageSize);
 
-        [HttpGet("All")]
-        public async Task<IActionResult> GetAllProducts(int shopId, int pageNumber, int pageSize)
-        {
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var allProducts = await _shopProductService.GetAllShopProductsAsync
-                                            (userId, shopId, pageNumber, pageSize);
-            return Ok(allProducts);
+            return Ok(result);
         }
 
         [HttpPatch("/Update")]
