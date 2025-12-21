@@ -49,7 +49,7 @@ namespace ArtEva.Controllers
             return Ok(result);
         }
 
-        [HttpPatch("/Update")]
+        [HttpPut("/Update")]
         public async Task<IActionResult> UpdateProduct(
         int shopId, int productId, [FromBody] UpdateProductDto dto)
         {

@@ -243,7 +243,7 @@ namespace ArtEva.Services
                 return null;
 
             var baseUrl = _config["UploadSettings:BaseUrl"];
-            return $"{baseUrl}/uploads/products/{fileName}";
+            return $"/uploads/products/{fileName}";
         }
 
         #endregion
@@ -326,7 +326,7 @@ namespace ArtEva.Services
         #region image helper
         public async Task UpdateProductImagesAsync(Product product, List<UpdateProductImage> imagesDto)
         {
-            var existing = product.ProductImages.ToList();
+            var existing = await _productImageRepository.GetImagesByProductIdWithTracking(product.Id);
             var incoming = imagesDto;
 
             var existingIds = existing.Select(x => x.Id).ToList();
